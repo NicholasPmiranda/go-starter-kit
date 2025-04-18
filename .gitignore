@@ -2,3 +2,12 @@
 /.idea
 /storage/app/*
 /storage/
+
+# Air hot reload
+/tmp/
+/tmp/main
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib

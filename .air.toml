@@ -1,0 +1,53 @@
+# Arquivo de configuração do Air para hot reload
+
+# Diretório de trabalho
+# . ou diretório absoluto
+root = "."
+tmp_dir = "tmp"
+
+[build]
+# Comando para executar antes de construir a aplicação
+cmd = "go build -o ./tmp/main ./cmd/server"
+# Caminho do binário
+bin = "./tmp/main"
+# Comando personalizado para executar o binário
+full_bin = "./tmp/main"
+# Lista de extensões para monitorar
+include_ext = ["go", "tpl", "tmpl", "html"]
+# Lista de diretórios para excluir do monitoramento
+exclude_dir = ["assets", "tmp", "vendor", "storage"]
+# Lista de arquivos para excluir do monitoramento
+exclude_file = []
+# Lista de diretórios para incluir no monitoramento
+include_dir = []
+# Lista de arquivos para incluir no monitoramento
+include_file = []
+# Excluir arquivos não alterados
+exclude_unchanged = true
+# Seguir links simbólicos
+follow_symlink = true
+# Construir e executar em diretórios diferentes
+delay = 1000 # ms
+# Matar o processo antes de construir
+kill_delay = "0s"
+# Enviar sinal de interrupção antes de matar
+stop_on_error = true
+# Enviar sinal para o processo em execução antes de reiniciar
+send_interrupt = false
+# Atraso após enviar o sinal de interrupção
+kill_signal = "SIGTERM"
+
+[log]
+# Mostrar log no console
+time = false
+
+[color]
+# Customizar cores da saída
+main = "magenta"
+watcher = "cyan"
+build = "yellow"
+runner = "green"
+
+[misc]
+# Limpar tela antes de executar
+clean_on_exit = true

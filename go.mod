@@ -3,6 +3,7 @@ module boilerPlate
 go 1.23.2
 
 require (
+	github.com/cosmtrek/air v1.51.0
 	github.com/bytedance/sonic v1.13.1 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

@@ -28,3 +28,15 @@ database/migrations:
 # Comando para instalar o golang-migrate CLI
 install-migrate:
 	@go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+# Instala o Air para hot reload
+install-air:
+	@go install github.com/cosmtrek/air@latest
+
+# Executa a aplicação com hot reload usando Air
+dev:
+	@air
+
+# Executa a aplicação sem hot reload
+run:
+	@go run cmd/server/main.go
