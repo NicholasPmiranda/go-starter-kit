@@ -1,6 +1,7 @@
 package handler
 
 import (
+	emailprovider "boilerPlate/config/emailProvider"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -34,26 +35,26 @@ func StartHandler(c *gin.Context) {
 		return
 	}
 
-	// Busca todos os usuários usando sqlx
-	var usuarios []database.User
-	err = db.Select(&usuarios, "SELECT id, name, email, password FROM users")
-	if err != nil {
-		log.Printf("Erro ao buscar usuários: %v", err)
-		c.JSON(500, gin.H{
-			"erro": "Erro ao buscar usuários: " + err.Error(),
-		})
-		return
+	to := []string{
+		"teste@teste.com",
+		"teste2@testeco",
 	}
 
-	log.Printf("Total de usuários encontrados: %d", len(usuarios))
+	templateData := map[string]interface{}{
+		"Nome":    novoUsuario.Name,
+		"Empresa": "Sua Empresa",
+	}
 
-	// Retorna o usuário criado e a lista completa de usuários
-	log.Printf("Operação concluída com sucesso. Usuário criado com ID: %d", novoUsuario.ID)
+	emailprovider.SendMail(emailprovider.EmailMessage{
+		To:           to,
+		Subject:      "teste",
+		Template:     "cadastro",
+		TemplateData: templateData,
+	})
 
+	log.Print("email enviado")
 	c.JSON(200, gin.H{
 		"mensagem":      "Usuário criado com sucesso",
 		"usuarioCriado": novoUsuario,
-		"todosUsuarios": usuarios,
-		"totalUsuarios": len(usuarios),
 	})
 }

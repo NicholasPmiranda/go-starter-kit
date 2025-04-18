@@ -293,6 +293,20 @@ Para um desenvolvimento eficiente com este projeto, recomendamos o seguinte flux
    - Verifique se os esquemas estão corretos
    - Consulte a documentação do SQLc para mais informações
 
+### Documentação Interna
+
+O projeto inclui documentação detalhada na pasta `.docs/` sobre vários aspectos do sistema:
+
+- `emails.md`: Como disparar emails usando o provedor de email
+- `autenticacao.md`: Sistema de autenticação
+- `handlers.md`: Como criar e usar handlers
+- `jobs.md`: Trabalhando com jobs em background
+- `logs.md`: Sistema de logs
+- `middlewares.md`: Criação e uso de middlewares
+- `provedores.md`: Integração com serviços externos
+- `queries.md`: Trabalhando com consultas SQL
+- `rotas.md`: Configuração de rotas
+
 ### Recursos Adicionais
 
 - [Documentação do Go](https://golang.org/doc/)

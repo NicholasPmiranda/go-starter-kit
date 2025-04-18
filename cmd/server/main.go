@@ -1,6 +1,7 @@
 package main
 
 import (
+	logger "boilerPlate/config/looger"
 	"fmt"
 
 	"github.com/joho/godotenv"
@@ -10,6 +11,8 @@ import (
 )
 
 func main() {
+
+	logger.SetupLogger()
 
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("No .env file found")

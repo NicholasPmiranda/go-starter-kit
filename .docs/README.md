@@ -66,6 +66,7 @@ O projeto inclui provedores para integração com serviços externos, como envio
 
 Para informações mais detalhadas sobre como usar os diferentes componentes do projeto, consulte os seguintes documentos:
 
+- [Como Disparar Emails](./emails.md)
 - [Como Criar e Disparar Jobs](./jobs.md)
 - [Como Criar Rotas](./rotas.md)
 - [Como Criar Queries](./queries.md)
