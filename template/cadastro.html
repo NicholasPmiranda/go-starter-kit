@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Bonito</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f7f9fc; padding: 20px;">
+    <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden;">
+        <div style="background-color: #4a90e2; color: white; padding: 15px 20px;">
+            <h1 style="margin: 0;">Olá, {{ .Nome }}!</h1>
+        </div>
+        <div style="padding: 20px;">
+            <p style="font-size: 16px; line-height: 1.5; color: #555;">
+                Este é um email de teste usando um template mais bonito e agradável visualmente. Esperamos que goste!
+            </p>
+            <p style="font-size: 14px; color: #999;">
+                Atenciosamente,<br>{{ .Empresa }}
+            </p>
+        </div>
+    </div>
+</body>
+</html>
