@@ -180,7 +180,7 @@ import (
 
 func exemplo(db *sql.DB) {
     queries := database.New(db)
-    
+
     // Agora você pode usar as funções geradas
     // ...
 }
@@ -272,3 +272,70 @@ sql:
 5. **Validação**: Valide os dados antes de passá-los para as consultas para evitar injeção de SQL.
 6. **Transações**: Use transações para operações que envolvem múltiplas consultas que precisam ser atômicas.
 7. **Paginação**: Implemente paginação para consultas que podem retornar muitos registros.
+
+## SQLx vs SQLC: Quando Usar Cada Um
+
+### O que é SQLx?
+
+[SQLx](https://github.com/jmoiron/sqlx) é uma biblioteca que estende o pacote `database/sql` padrão do Go, adicionando funcionalidades para facilitar o trabalho com bancos de dados. Diferentemente do SQLC, que gera código a partir de consultas SQL, o SQLx é uma biblioteca de tempo de execução que oferece métodos auxiliares para mapear resultados de consultas para structs Go.
+
+### Como o SQLx é Usado no Projeto
+
+O Go Starter Kit inclui suporte para SQLx através da função `ConnectDBX()` no pacote `internal/database`. Esta função estabelece uma conexão com o banco de dados PostgreSQL usando o driver pgx e retorna um objeto `*sqlx.DB`.
+
+Exemplo de conexão com SQLx:
+
+```go
+// Conecta ao banco de dados usando sqlx
+db := database.ConnectDBX()
+defer db.Close()
+```
+
+### Principais Recursos do SQLx
+
+1. **Mapeamento Automático**: Mapeia resultados de consultas para structs Go usando tags de struct.
+2. **Métodos Auxiliares**: Oferece métodos como `Get`, `Select`, `QueryRowx`, e `StructScan` para facilitar o trabalho com resultados de consultas.
+3. **Preparação de Consultas**: Suporta consultas preparadas para melhor desempenho e segurança.
+4. **Transações**: Facilita o trabalho com transações.
+
+### Exemplo de Uso do SQLx
+
+```go
+// Inserção com retorno de dados
+var novoUsuario database.User
+err := db.QueryRowx(
+    "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
+    "Novo Usuário", "usuario@exemplo.com", "senha123",
+).StructScan(&novoUsuario)
+
+// Consulta de múltiplos registros
+var usuarios []database.User
+err = db.Select(&usuarios, "SELECT id, name, email, password FROM users")
+```
+
+### Quando Usar SQLC vs SQLx
+
+#### Use SQLC quando:
+
+1. **Consultas Conhecidas em Tempo de Compilação**: Suas consultas SQL são conhecidas antecipadamente e não mudam dinamicamente.
+2. **Verificação de Tipo em Tempo de Compilação**: Você deseja verificação de tipo em tempo de compilação para suas consultas SQL.
+3. **Geração de Código**: Você prefere ter código Go gerado automaticamente a partir de suas consultas SQL.
+4. **Consultas Complexas**: Você tem consultas SQL complexas que se beneficiariam de verificação de sintaxe em tempo de compilação.
+5. **Manutenção de API**: Você deseja uma API estável e bem definida para acesso a dados.
+
+#### Use SQLx quando:
+
+1. **Consultas Dinâmicas**: Você precisa construir consultas SQL dinamicamente em tempo de execução.
+2. **Flexibilidade**: Você precisa de mais flexibilidade no mapeamento de resultados para structs.
+3. **Prototipagem Rápida**: Você está prototipando rapidamente e não quer gerar código a cada alteração de consulta.
+4. **Consultas Ad-hoc**: Você precisa executar consultas ad-hoc que não são conhecidas em tempo de compilação.
+5. **Integração com Código Existente**: Você está integrando com código existente que já usa `database/sql`.
+
+### Combinando SQLC e SQLx
+
+Em muitos projetos, é benéfico usar tanto SQLC quanto SQLx:
+
+- Use **SQLC** para consultas comuns e bem definidas que são conhecidas em tempo de compilação.
+- Use **SQLx** para consultas dinâmicas ou ad-hoc que precisam ser construídas em tempo de execução.
+
+O Go Starter Kit suporta ambas as abordagens, permitindo que você escolha a ferramenta certa para cada caso de uso.
