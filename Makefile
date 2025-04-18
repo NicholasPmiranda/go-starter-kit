@@ -39,4 +39,4 @@ dev:
 
 # Executa a aplicação sem hot reload
 run:
-	@go run cmd/server/main.go
+	@go run ./cmd/server/main.go

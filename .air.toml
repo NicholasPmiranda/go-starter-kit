@@ -42,7 +42,7 @@ kill_signal = "SIGTERM"
 time = false
 
 [color]
-# Customizar cores da saída
+# Customizar cores do output
 main = "magenta"
 watcher = "cyan"
 build = "yellow"
