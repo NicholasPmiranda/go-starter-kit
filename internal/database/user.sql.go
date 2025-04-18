@@ -15,9 +15,9 @@ insert into users (name, email, password)
 `
 
 type CreateUserParams struct {
-	Name     string
-	Email    string
-	Password string
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {

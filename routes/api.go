@@ -14,6 +14,8 @@ import (
 func SetupRoutes() *gin.Engine {
 	router := gin.Default()
 
+	router.SetTrustedProxies([]string{"*"})
+
 	redisOpt := asynq.RedisClientOpt{Addr: "localhost:6379"}
 	monitor := asynqmon.New(asynqmon.Options{
 		RootPath:     "/monitor",

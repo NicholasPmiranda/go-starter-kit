@@ -1,4 +1,26 @@
 services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - '${APP_PORT:-8080}:3030'
+        volumes:
+            - '.:/app'
+        depends_on:
+            - pgsql
+            - redis
+        networks:
+            - nest
+        environment:
+            DB_HOST: pgsql
+            DB_PORT: 5432
+            DB_DATABASE: '${DB_DATABASE}'
+            DB_USERNAME: '${DB_USERNAME}'
+            DB_PASSWORD: '${DB_PASSWORD:-secret}'
+            SECRET: '${SECRET}'
+            MAIL_HOST: mailpit
+            MAIL_PORT: 1025
 
     pgsql:
         image: 'postgres:15'
@@ -15,14 +37,7 @@ services:
         networks:
             - nest
         healthcheck:
-            test:
-                - CMD
-                - pg_isready
-                - '-q'
-                - '-d'
-                - '${DB_DATABASE}'
-                - '-U'
-                - '${DB_USERNAME}'
+            test: ["CMD", "pg_isready", "-q", "-d", "${DB_DATABASE}", "-U", "${DB_USERNAME}"]
             retries: 3
             timeout: 5s
     redis:
@@ -34,10 +49,7 @@ services:
         networks:
             - nest
         healthcheck:
-            test:
-                - CMD
-                - redis-cli
-                - ping
+            test: ["CMD", "redis-cli", "ping"]
             retries: 3
             timeout: 5s
     mailpit:

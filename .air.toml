@@ -7,7 +7,7 @@ tmp_dir = "tmp"
 
 [build]
 # Comando para executar antes de construir a aplicação
-cmd = "go build -o ./tmp/main ./cmd/server"
+cmd = "go build -buildvcs=false -o ./tmp/main ./cmd/server"
 # Caminho do binário
 bin = "./tmp/main"
 # Comando personalizado para executar o binário
