@@ -14,7 +14,8 @@ import (
 func SetupRoutes() *gin.Engine {
 	router := gin.Default()
 
-	router.SetTrustedProxies([]string{"*"})
+	// Configurar o tamanho máximo de upload para 1GB
+	router.MaxMultipartMemory = 1 << 30 // 1GB
 
 	redisOpt := asynq.RedisClientOpt{Addr: "localhost:6379"}
 	monitor := asynqmon.New(asynqmon.Options{
