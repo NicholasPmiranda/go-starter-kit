@@ -29,6 +29,7 @@ func Execute() asynq.HandlerFunc {
 		json.Unmarshal(task.Payload(), &payload)
 
 		fmt.Println(payload)
+		// Removido o panic para permitir a execução do job
 		return nil
 	}
 }

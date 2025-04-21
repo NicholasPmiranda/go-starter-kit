@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/hibiken/asynq"
 )
@@ -54,4 +55,21 @@ func main() {
 	<-quit
 
 	log.Println("Finalizando aplicação...")
+
+	// Cria um canal para sinalizar que o worker foi encerrado
+	done := make(chan struct{})
+
+	// Inicia o encerramento do worker em uma goroutine
+	go func() {
+		srv.Shutdown()
+		close(done)
+	}()
+
+	// Espera o encerramento do worker ou o timeout
+	select {
+	case <-done:
+		log.Println("Worker encerrado com sucesso")
+	case <-time.After(5 * time.Second):
+		log.Println("Timeout ao encerrar o worker, forçando encerramento")
+	}
 }
