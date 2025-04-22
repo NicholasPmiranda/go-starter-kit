@@ -20,6 +20,7 @@ func DisparJob(c *gin.Context) {
 
 	task, err := jobs.NewJobModel(request)
 	queueCliente := queue.Conect()
+
 	defer queueCliente.Close()
 
 	if err != nil {
