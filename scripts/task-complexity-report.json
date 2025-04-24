@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "generatedAt": "2025-04-24T23:38:36.182Z",
+    "tasksAnalyzed": 9,
+    "thresholdScore": 5,
+    "projectName": "Your Project Name",
+    "usedResearch": false
+  },
+  "complexityAnalysis": [
+    {
+      "taskId": 2,
+      "taskTitle": "Implement database setup and migrations",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down the database setup task into specific subtasks covering PostgreSQL configuration, schema migration implementation for each entity type, SQLC/SQLX setup, repository pattern implementation, connection pooling, and transaction management utilities.",
+      "reasoning": "This task involves multiple technical components including database connection, schema migrations for 8 different entities, query generation tools, repository implementations, connection pooling, and transaction management. Each component requires specific technical knowledge and careful implementation."
+    },
+    {
+      "taskId": 3,
+      "taskTitle": "Implement authentication and user management",
+      "complexityScore": 8,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Divide the authentication system implementation into subtasks covering user repository creation, JWT token generation/validation, password security, user registration/login endpoints, authorization middleware, role-based access control, and user avatar functionality.",
+      "reasoning": "Authentication is security-critical with many components: JWT implementation, password security, multiple endpoints, middleware for protection, RBAC, and file handling for avatars. Each component requires careful implementation and thorough testing to ensure system security."
+    },
+    {
+      "taskId": 4,
+      "taskTitle": "Implement client management",
+      "complexityScore": 5,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the client management implementation into subtasks covering client model/repository creation, service layer business logic, CRUD API endpoints, data validation, and filtering/pagination functionality.",
+      "reasoning": "This task follows a standard CRUD pattern but includes relationships to users, validation requirements, and filtering/pagination. It's moderately complex but follows established patterns that should be familiar to the development team."
+    },
+    {
+      "taskId": 5,
+      "taskTitle": "Implement project management",
+      "complexityScore": 6,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide the project management implementation into subtasks covering project model/repository creation, service layer business logic, CRUD API endpoints, status management functionality, relationship management (clients/users), visibility controls, and filtering/pagination.",
+      "reasoning": "This task extends beyond basic CRUD with status management, multiple relationships (clients and users), visibility controls, and filtering. The interconnected nature of projects with other entities adds complexity to the implementation."
+    },
+    {
+      "taskId": 6,
+      "taskTitle": "Implement task and subtask management",
+      "complexityScore": 8,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Break down the task/subtask implementation into subtasks covering models/repositories creation, service layer business logic, CRUD API endpoints, status/priority/deadline tracking, relationship management, ordering functionality, and filtering/pagination features.",
+      "reasoning": "This task involves two related entities (tasks and subtasks) with complex relationships and multiple tracking features (status, priority, deadlines). The ordering functionality and hierarchical nature of tasks/subtasks add significant complexity to the implementation."
+    },
+    {
+      "taskId": 7,
+      "taskTitle": "Implement comments and attachments",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide the comments and attachments implementation into subtasks covering models/repositories creation, service layer business logic, CRUD API endpoints, file storage system integration, relationship management, and file validation/security features.",
+      "reasoning": "This task involves file handling which adds complexity beyond standard CRUD operations. Secure file storage, type validation, and size limitations require careful implementation to prevent security vulnerabilities and ensure proper system performance."
+    },
+    {
+      "taskId": 8,
+      "taskTitle": "Implement notification system",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down the notification system implementation into subtasks covering notification model/repository creation, notification service with event types, API endpoints for notification management, event generation implementation, background job processing, and foundation for email integration.",
+      "reasoning": "The notification system requires event-based architecture and background processing, which adds complexity. It also needs to integrate with multiple parts of the system to generate appropriate notifications for different actions and events."
+    },
+    {
+      "taskId": 9,
+      "taskTitle": "Implement list and Kanban views",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Divide the list and Kanban view implementation into subtasks covering list view API extensions, Kanban data structure implementation, Kanban view endpoints, task movement functionality, custom ordering support, and board configuration endpoints.",
+      "reasoning": "This task involves extending existing APIs and implementing specialized data structures for Kanban boards. The custom ordering and task movement between columns add complexity to what would otherwise be primarily read operations."
+    },
+    {
+      "taskId": 10,
+      "taskTitle": "Implement security, testing and documentation",
+      "complexityScore": 9,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Break down the security, testing and documentation task into subtasks covering security measures implementation (rate limiting, input sanitization, CSRF protection), integration test creation, performance benchmarking, API documentation, database optimization, monitoring setup, and deployment documentation.",
+      "reasoning": "This task covers multiple critical areas (security, testing, documentation, performance) that span the entire system. Each area requires specialized knowledge and thorough implementation. The comprehensive nature and system-wide scope make this the most complex task in the project."
+    }
+  ]
+}
