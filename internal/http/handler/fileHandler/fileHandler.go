@@ -1,10 +1,10 @@
 package fileHandler
 
 import (
-	"boilerPlate/config/storageProvider"
 	"net/http"
 	"os"
 	"path/filepath"
+	"sixTask/config/storageProvider"
 
 	"github.com/gin-gonic/gin"
 )

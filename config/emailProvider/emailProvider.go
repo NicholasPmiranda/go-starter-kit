@@ -37,18 +37,18 @@ func init() {
 	mailer = gomail.NewDialer(host, port, username, password)
 }
 
-// SendMail envia um e-mail usando um template HTML
+// SendMail envia um e-mail usando um template.sql HTML
 func SendMail(emailMsg EmailMessage) error {
-	// Ler e parsear o template
-	tmpl, err := template.ParseFiles("template/" + emailMsg.Template + ".html")
+	// Ler e parsear o template.sql
+	tmpl, err := template.ParseFiles("template.sql/" + emailMsg.Template + ".html")
 	if err != nil {
-		return fmt.Errorf("erro ao carregar template: %v", err)
+		return fmt.Errorf("erro ao carregar template.sql: %v", err)
 	}
 
-	// Executar o template com os dados fornecidos
+	// Executar o template.sql com os dados fornecidos
 	var body bytes.Buffer
 	if err = tmpl.Execute(&body, emailMsg.TemplateData); err != nil {
-		return fmt.Errorf("erro ao executar template: %v", err)
+		return fmt.Errorf("erro ao executar template.sql: %v", err)
 	}
 
 	// Criar a mensagem

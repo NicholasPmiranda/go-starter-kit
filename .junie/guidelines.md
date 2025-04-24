@@ -9,7 +9,7 @@ sempre responda tudo em portugues e nunca  em ingles
 ## Convenções para Go
 
 ### 1. Estrutura de Pastas e Arquivos
-- **lowercase**: Para arquivos Go, use nomes em letras minúsculas, sem underscores.
+- **camelCase**: Para arquivos Go, use nomes em letras minúsculas, sem underscores.
 - **CamelCase**: Para nomes exportados (funções, structs, interfaces), siga a convenção CamelCase.
 - **lowercase**: Para pacotes (diretórios), use nomes em minúsculas sem underscores.
 - **camelCase**: Para nomes de variáveis, use camelCase iniciado com letra minúscula.
@@ -121,3 +121,12 @@ func (s *UserService) Process(ctx context.Context, req Request) (Response, error
 
 - Postgresql.
 - Sqlc
+
+
+### 11. Services
+
+ - sempre crie services  pra abtrair os comportamentos  e nao  deixa toda logica no controller
+ - sempre crie  os tipos  dentro de internal/types
+ - sempre  cria agrupamento pra mehor etendimento  ao inves de criar 3 services soltos como categoria post e user coloca todos dentro um /blog pra  agrupar
+
+

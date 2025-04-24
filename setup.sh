@@ -2,7 +2,7 @@
 
 # Defina os nomes antigo e novo do módulo
 OLD_MODULE="boilerPlate"
-NEW_MODULE="biDsv"
+NEW_MODULE="sixTask"
 
 # Detecta o sistema operacional para usar o sed corretamente
 if [[ "$OSTYPE" == "darwin"* ]]; then

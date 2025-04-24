@@ -1,8 +1,8 @@
 package seeds
 
 import (
-	authhelper "boilerPlate/helpers/authHelper"
-	"boilerPlate/internal/database"
+	authhelper "sixTask/helpers/authHelper"
+	"sixTask/internal/database"
 )
 
 func UserSeeder() {

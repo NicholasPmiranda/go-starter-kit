@@ -22,11 +22,11 @@ Para adicionar novas rotas, você deve editar o arquivo `routes/api.go`:
 package routes
 
 import (
-	"boilerPlate/internal/http/handler"
-	"boilerPlate/internal/http/handler/JobHandler"
-	authhandler "boilerPlate/internal/http/handler/authHandler"
-	filehandler "boilerPlate/internal/http/handler/fileHandler"
-	authmiddleware "boilerPlate/internal/middleware/authMiddleware"
+	"sixTask/internal/http/handler"
+	"sixTask/internal/http/handler/JobHandler"
+	authhandler "sixTask/internal/http/handler/authHandler"
+	filehandler "sixTask/internal/http/handler/fileHandler"
+	authmiddleware "sixTask/internal/middleware/authMiddleware"
 	"github.com/gin-gonic/gin"
 )
 

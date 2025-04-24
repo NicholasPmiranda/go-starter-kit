@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 
-	authhelper "boilerPlate/helpers/authHelper"
+	authhelper "sixTask/helpers/authHelper"
 )
 
 func AuthMiddleware() gin.HandlerFunc {

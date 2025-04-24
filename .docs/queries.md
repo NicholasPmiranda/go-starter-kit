@@ -175,7 +175,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 import (
     "context"
     "database/sql"
-    "boilerPlate/internal/database"
+    "sixTask/internal/database"
 )
 
 func exemplo(db *sql.DB) {

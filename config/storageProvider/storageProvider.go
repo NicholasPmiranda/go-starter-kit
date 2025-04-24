@@ -47,7 +47,7 @@ func SaveFile(c *gin.Context, fileField string, subPath string) (string, string,
 
 	// Return random filename and relative path
 	relativePath := filepath.Join(subPath, randomName)
-	return randomName, relativePath, nil
+	return fullFilePath, relativePath, nil
 }
 
 // GenerateRandomFilename creates a random filename with the original extension

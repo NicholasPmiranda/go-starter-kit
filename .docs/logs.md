@@ -23,7 +23,7 @@ O logger é configurado no arquivo `config/looger/looger.go` e pode ser ajustado
 
 ```go
 import (
-    "boilerPlate/config/looger"
+    "sixTask/config/looger"
 )
 ```
 
@@ -97,8 +97,8 @@ O sistema de logs suporta diferentes níveis, que podem ser configurados de acor
 package userhandler
 
 import (
-    "boilerPlate/config/looger"
-    "boilerPlate/internal/database"
+    "sixTask/config/looger"
+    "sixTask/internal/database"
     "context"
     "github.com/gin-gonic/gin"
     "net/http"
@@ -156,8 +156,8 @@ func GetUser(c *gin.Context) {
 package jobs
 
 import (
-    "boilerPlate/config/looger"
-    "boilerPlate/internal/http/request/RequestModel"
+    "sixTask/config/looger"
+    "sixTask/internal/http/request/RequestModel"
     "context"
     "encoding/json"
     "github.com/hibiken/asynq"

@@ -1,13 +1,13 @@
 package handler
 
 import (
-	emailprovider "boilerPlate/config/emailProvider"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
+	emailp
 	"time"
 
-	"boilerPlate/internal/database"
+	"sixTask/internal/database"
 )
 
 func StartHandler(c *gin.Context) {

@@ -54,8 +54,8 @@ Para requisições a rotas protegidas:
 package authhandler
 
 import (
-	"boilerPlate/helpers/authHelper"
-	"boilerPlate/internal/database"
+	"sixTask/helpers/authHelper"
+	"sixTask/internal/database"
 	"context"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"

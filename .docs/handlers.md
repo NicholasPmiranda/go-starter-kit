@@ -90,7 +90,7 @@ Após criar as funções de handler, você deve registrá-las nas rotas da aplic
 // routes/api.go
 import (
 	// ...
-	produtohandler "boilerPlate/internal/http/handler/produtoHandler"
+	produtohandler "sixTask/internal/http/handler/produtoHandler"
 )
 
 func SetupRoutes() *gin.Engine {
@@ -124,8 +124,8 @@ Um handler típico segue esta estrutura:
 package userhandler
 
 import (
-	"boilerPlate/internal/database"
-	"boilerPlate/internal/http/request/RequestModel"
+	"sixTask/internal/database"
+	"sixTask/internal/http/request/RequestModel"
 	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -319,7 +319,7 @@ c.JSON(http.StatusInternalServerError, gin.H{
 ### Resposta HTML
 
 ```go
-c.HTML(http.StatusOK, "template.html", gin.H{
+c.HTML(http.StatusOK, "template.sql.html", gin.H{
 	"titulo": "Minha Página",
 	"conteudo": "Conteúdo da página",
 })

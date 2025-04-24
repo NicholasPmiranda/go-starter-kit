@@ -39,7 +39,7 @@ Primeiro, importe o pacote do provedor de email:
 
 ```go
 import (
-    emailprovider "boilerPlate/config/emailProvider"
+    emailprovider "sixTask/config/emailProvider"
 )
 ```
 
@@ -54,7 +54,7 @@ to := []string{
     "outro@exemplo.com",
 }
 
-// Criar os dados para o template
+// Criar os dados para o template.sql
 templateData := map[string]interface{}{
     "Nome":    "João Silva",
     "Empresa": "Sua Empresa",
@@ -66,7 +66,7 @@ emailMsg := emailprovider.EmailMessage{
     Cc:           []string{"copia@exemplo.com"},
     Bcc:          []string{"copiaoculta@exemplo.com"},
     Subject:      "Assunto do Email",
-    Template:     "cadastro",  // Nome do template HTML (sem a extensão)
+    Template:     "cadastro",  // Nome do template.sql HTML (sem a extensão)
     TemplateData: templateData,
     Attachments:  []emailprovider.EmailAttachment{
         {
@@ -153,13 +153,13 @@ Aqui está um exemplo completo de como enviar um email de boas-vindas para um no
 package handler
 
 import (
-    emailprovider "boilerPlate/config/emailProvider"
+    emailprovider "sixTask/config/emailProvider"
     "fmt"
     "github.com/gin-gonic/gin"
     "log"
     "time"
 
-    "boilerPlate/internal/database"
+    "sixTask/internal/database"
 )
 
 func StartHandler(c *gin.Context) {
@@ -193,7 +193,7 @@ func StartHandler(c *gin.Context) {
         "teste2@testeco",
     }
 
-    // Criar os dados para o template
+    // Criar os dados para o template.sql
     templateData := map[string]interface{}{
         "Nome":    novoUsuario.Name,
         "Empresa": "Sua Empresa",

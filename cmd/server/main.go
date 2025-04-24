@@ -1,22 +1,20 @@
 package main
 
 import (
-	logger "boilerPlate/config/looger"
-	schedulerConfig "boilerPlate/config/scheduler"
-	workerConfig "boilerPlate/config/worker"
 	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	logger "sixTask/co
 	"syscall"
 	"time"
 
 	"github.com/joho/godotenv"
 
-	"boilerPlate/database/seeds"
-	"boilerPlate/routes"
+	"sixTask/database/seeds"
+	"sixTask/routes"
 )
 
 func main() {

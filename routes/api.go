@@ -1,14 +1,14 @@
 package routes
 
 import (
-	"boilerPlate/internal/http/handler"
-	"boilerPlate/internal/http/handler/JobHandler"
-	authhandler "boilerPlate/internal/http/handler/authHandler"
-	filehandler "boilerPlate/internal/http/handler/fileHandler"
-	authmiddleware "boilerPlate/internal/middleware/authMiddleware"
 	"github.com/gin-gonic/gin"
 	"github.com/hibiken/asynq"
 	"github.com/hibiken/asynqmon"
+	"sixTask/internal/http/handler"
+	"sixTask/internal/http/handler/JobHandler"
+	authhandler "sixTask/internal/http/handler/authHandler"
+	filehandler "sixTask/internal/http/handler/fileHandler"
+	authmiddleware "sixTask/internal/middleware/authMiddleware"
 )
 
 func SetupRoutes() *gin.Engine {
@@ -30,6 +30,7 @@ func SetupRoutes() *gin.Engine {
 
 	api := router.Group("/api")
 	{
+
 		api.POST("disparar-job", JobHandler.DisparJob)
 
 		api.POST("/", handler.StartHandler)

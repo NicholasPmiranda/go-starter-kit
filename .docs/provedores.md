@@ -42,7 +42,7 @@ MAIL_FROM_NAME="Example App"
 
 ```go
 import (
-    emailprovider "boilerPlate/config/emailProvider"
+    emailprovider "sixTask/config/emailProvider"
 )
 ```
 
@@ -55,7 +55,7 @@ emailMsg := emailprovider.EmailMessage{
     Cc:           []string{"copia@example.com"},
     Bcc:          []string{"copiaoculta@example.com"},
     Subject:      "Assunto do Email",
-    Template:     "cadastro",  // Nome do template HTML (sem a extensão)
+    Template:     "cadastro",  // Nome do template.sql HTML (sem a extensão)
     TemplateData: map[string]interface{}{
         "nome":    "João Silva",
         "empresa": "Empresa XYZ",
@@ -120,7 +120,7 @@ config/storageProvider/storageProvider.go
 
 ```go
 import (
-    storageprovider "boilerPlate/config/storageProvider"
+    storageprovider "sixTask/config/storageProvider"
 )
 ```
 
@@ -185,8 +185,8 @@ O provedor de storage utiliza o diretório `storage/` como base para armazenamen
 package filehandler
 
 import (
-    "boilerPlate/config/emailProvider"
-    "boilerPlate/config/storageProvider"
+    "sixTask/config/emailProvider"
+    "sixTask/config/storageProvider"
     "github.com/gin-gonic/gin"
     "log"
     "net/http"

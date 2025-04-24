@@ -1,11 +1,10 @@
 package scheduler
 
 import (
-	"boilerPlate/internal/http/request/RequestModel"
-	"boilerPlate/internal/jobs"
 	"log"
 	"os"
 	"os/signal"
+	"sixTask/internal
 	"syscall"
 	"time"
 )
@@ -70,7 +69,7 @@ func registerTasks(ts *TaskScheduler) {
 	}
 
 	task, _ := jobs.NewJobModel(examplePayload)
-	ts.Register(task).EveryMinute()
+	ts.Register(task).EveryThirtyMinutes()
 
 	// Aqui você pode registrar outras tarefas com diferentes intervalos
 	// Exemplos:

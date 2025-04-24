@@ -1,8 +1,8 @@
 package fileHandler
 
 import (
-	"boilerPlate/config/storageProvider"
 	"net/http"
+
 
 	"github.com/gin-gonic/gin"
 )

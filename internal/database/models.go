@@ -4,6 +4,136 @@
 
 package database
 
+import (
+	"github.com/jackc/pgx/v5/pgtype"
+)
+
+type Shipment struct {
+	ShipmentID                            pgtype.Text    `json:"shipment_id"`
+	Trans                                 pgtype.Text    `json:"trans"`
+	CusInfo                               pgtype.Text    `json:"cus_info"`
+	Mode                                  pgtype.Text    `json:"mode"`
+	Origin                                pgtype.Text    `json:"origin"`
+	OriginCtry                            pgtype.Text    `json:"origin_ctry"`
+	Destination                           pgtype.Text    `json:"destination"`
+	DestCtry                              pgtype.Text    `json:"dest_ctry"`
+	ConsignorCode                         pgtype.Text    `json:"consignor_code"`
+	ConsignorName                         pgtype.Text    `json:"consignor_name"`
+	ConsigneeCode                         pgtype.Text    `json:"consignee_code"`
+	ConsigneeName                         pgtype.Text    `json:"consignee_name"`
+	HouseRef                              pgtype.Text    `json:"house_ref"`
+	Inco                                  pgtype.Text    `json:"inco"`
+	AdditionalTerms                       pgtype.Text    `json:"additional_terms"`
+	PpdCcx                                pgtype.Text    `json:"ppd_ccx"`
+	GoodsDescription                      pgtype.Text    `json:"goods_description"`
+	OriginEtd                             pgtype.Date    `json:"origin_etd"`
+	DestEta                               pgtype.Date    `json:"dest_eta"`
+	Weight                                pgtype.Numeric `json:"weight"`
+	WeightUq                              pgtype.Text    `json:"weight_uq"`
+	Volume                                pgtype.Numeric `json:"volume"`
+	VolumeUq                              pgtype.Text    `json:"volume_uq"`
+	LoadingMeters                         pgtype.Numeric `json:"loading_meters"`
+	Chargeable                            pgtype.Numeric `json:"chargeable"`
+	ChargeableUq                          pgtype.Text    `json:"chargeable_uq"`
+	Added                                 pgtype.Date    `json:"added"`
+	ControllingCustomerCode               pgtype.Text    `json:"controlling_customer_code"`
+	ControllingCustomerName               pgtype.Text    `json:"controlling_customer_name"`
+	ControllingAgentCode                  pgtype.Text    `json:"controlling_agent_code"`
+	ControllingAgentName                  pgtype.Text    `json:"controlling_agent_name"`
+	TransportJob                          pgtype.Text    `json:"transport_job"`
+	BrokerageJob                          pgtype.Text    `json:"brokerage_job"`
+	IsMasterLead                          pgtype.Bool    `json:"is_master_lead"`
+	MasterLeadRef                         pgtype.Text    `json:"master_lead_ref"`
+	ImportBrokerCode                      pgtype.Text    `json:"import_broker_code"`
+	ImportBrokerName                      pgtype.Text    `json:"import_broker_name"`
+	ExportBrokerCode                      pgtype.Text    `json:"export_broker_code"`
+	ExportBrokerName                      pgtype.Text    `json:"export_broker_name"`
+	JobBranch                             pgtype.Text    `json:"job_branch"`
+	JobDept                               pgtype.Text    `json:"job_dept"`
+	LocalClientCode                       pgtype.Text    `json:"local_client_code"`
+	LocalClientName                       pgtype.Text    `json:"local_client_name"`
+	JobSalesRep                           pgtype.Text    `json:"job_sales_rep"`
+	JobOperator                           pgtype.Text    `json:"job_operator"`
+	JobStatus                             pgtype.Text    `json:"job_status"`
+	JobOpened                             pgtype.Date    `json:"job_opened"`
+	RecognizedRevenue                     pgtype.Numeric `json:"recognized_revenue"`
+	RecognizedWip                         pgtype.Numeric `json:"recognized_wip"`
+	TotalRecognizedIncome                 pgtype.Numeric `json:"total_recognized_income"`
+	RecognizedCost                        pgtype.Numeric `json:"recognized_cost"`
+	RecognizedAccrual                     pgtype.Numeric `json:"recognized_accrual"`
+	TotalRecognizedExpense                pgtype.Numeric `json:"total_recognized_expense"`
+	JobProfit                             pgtype.Numeric `json:"job_profit"`
+	ConsolID                              pgtype.Text    `json:"consol_id"`
+	FirstLoad                             pgtype.Text    `json:"first_load"`
+	LastDisch                             pgtype.Text    `json:"last_disch"`
+	EtdFirstLoad                          pgtype.Date    `json:"etd_first_load"`
+	EtaLastDisch                          pgtype.Date    `json:"eta_last_disch"`
+	Master                                pgtype.Text    `json:"master"`
+	Vessel                                pgtype.Text    `json:"vessel"`
+	FlightVoyage                          pgtype.Text    `json:"flight_voyage"`
+	Load                                  pgtype.Text    `json:"load"`
+	Disch                                 pgtype.Text    `json:"disch"`
+	EtdLoad                               pgtype.Date    `json:"etd_load"`
+	EtaDisch                              pgtype.Date    `json:"eta_disch"`
+	SendAgentCode                         pgtype.Text    `json:"send_agent_code"`
+	SendAgentName                         pgtype.Text    `json:"send_agent_name"`
+	RecvAgent                             pgtype.Text    `json:"recv_agent"`
+	RecvAgentName                         pgtype.Text    `json:"recv_agent_name"`
+	CoLoadedWith                          pgtype.Text    `json:"co_loaded_with"`
+	CoLoaderName                          pgtype.Text    `json:"co_loader_name"`
+	CarrierCode                           pgtype.Text    `json:"carrier_code"`
+	CarrierName                           pgtype.Text    `json:"carrier_name"`
+	Teu                                   pgtype.Numeric `json:"teu"`
+	CntrCount                             pgtype.Numeric `json:"cntr_count"`
+	Other                                 pgtype.Numeric `json:"other"`
+	F20                                   pgtype.Numeric `json:"f20"`
+	R20                                   pgtype.Numeric `json:"r20"`
+	H20                                   pgtype.Numeric `json:"h20"`
+	F40                                   pgtype.Numeric `json:"f40"`
+	R40                                   pgtype.Numeric `json:"r40"`
+	H40                                   pgtype.Numeric `json:"h40"`
+	F45                                   pgtype.Numeric `json:"f45"`
+	Gen                                   pgtype.Numeric `json:"gen"`
+	UnrecognizedRevenue                   pgtype.Numeric `json:"unrecognized_revenue"`
+	UnrecognizedWip                       pgtype.Numeric `json:"unrecognized_wip"`
+	UnrecognizedCost                      pgtype.Numeric `json:"unrecognized_cost"`
+	UnrecognizedAccrual                   pgtype.Numeric `json:"unrecognized_accrual"`
+	TotalRevenue                          pgtype.Numeric `json:"total_revenue"`
+	TotalWip                              pgtype.Numeric `json:"total_wip"`
+	TotalIncome                           pgtype.Numeric `json:"total_income"`
+	ServiceLevelCode                      pgtype.Text    `json:"service_level_code"`
+	ShippersReference                     pgtype.Text    `json:"shippers_reference"`
+	ConsignorCity                         pgtype.Text    `json:"consignor_city"`
+	ConsignorState                        pgtype.Text    `json:"consignor_state"`
+	ConsignorPostcode                     pgtype.Text    `json:"consignor_postcode"`
+	ConsigneeCity                         pgtype.Text    `json:"consignee_city"`
+	ConsigneeState                        pgtype.Text    `json:"consignee_state"`
+	ConsigneePostcode                     pgtype.Text    `json:"consignee_postcode"`
+	ConsolAtd                             pgtype.Date    `json:"consol_atd"`
+	ConsolAta                             pgtype.Date    `json:"consol_ata"`
+	JobRevenueRecognitionDate             pgtype.Text    `json:"job_revenue_recognition_date"`
+	Direction                             pgtype.Text    `json:"direction"`
+	LocalClientArSettlementGroupCode      pgtype.Text    `json:"local_client_ar_settlement_group_code"`
+	LocalClientArSettlementGroupName      pgtype.Text    `json:"local_client_ar_settlement_group_name"`
+	OverseasAgentCode                     pgtype.Text    `json:"overseas_agent_code"`
+	OverseasAgentName                     pgtype.Text    `json:"overseas_agent_name"`
+	JobOverseasAgentArSettlementGroupCode pgtype.Text    `json:"job_overseas_agent_ar_settlement_group_code"`
+	JobOverseasAgentArSettlementGroupName pgtype.Text    `json:"job_overseas_agent_ar_settlement_group_name"`
+	TotalCost                             pgtype.Numeric `json:"total_cost"`
+	TotalAccrual                          pgtype.Numeric `json:"total_accrual"`
+	TotalExpense                          pgtype.Numeric `json:"total_expense"`
+}
+
+type Template struct {
+	ID                  int64            `json:"id"`
+	Titulo              string           `json:"titulo"`
+	Tabela              string           `json:"tabela"`
+	ColunaIdentificacao string           `json:"coluna_identificacao"`
+	Colunas             []byte           `json:"colunas"`
+	CreatedAt           pgtype.Timestamp `json:"created_at"`
+	UpdatedAt           pgtype.Timestamp `json:"updated_at"`
+}
+
 type User struct {
 	ID       int64  `json:"id"`
 	Name     string `json:"name"`

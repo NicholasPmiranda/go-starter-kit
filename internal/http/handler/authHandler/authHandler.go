@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 
-	authhelper "boilerPlate/helpers/authHelper"
-	"boilerPlate/internal/database"
+	authhelper "sixTask/helpers/authHelper"
+	"sixTask/internal/database"
 )
 
 // make the Login with Password and email

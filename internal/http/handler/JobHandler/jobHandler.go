@@ -1,10 +1,11 @@
 package JobHandler
 
 import (
-	"boilerPlate/config/queue"
-	"boilerPlate/internal/http/request/RequestModel"
-	"boilerPlate/internal/jobs"
 	"github.com/gin-gonic/gin"
+	"github.com/hibiken/asynq"
+	"sixTask/con
+	"sixTask/config/queue"
+	"sixTask/internal/http/request/RequestModel"
 	"github.com/hibiken/asynq"
 )
 

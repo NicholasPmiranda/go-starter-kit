@@ -1,11 +1,11 @@
 package worker
 
 import (
-	"boilerPlate/internal/jobs"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"sixTask/
 	"syscall"
 	"time"
 

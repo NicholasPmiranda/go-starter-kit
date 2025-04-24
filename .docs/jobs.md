@@ -17,7 +17,7 @@ Um job no Go Starter Kit consiste em dois componentes principais:
 package jobs
 
 import (
-	"boilerPlate/internal/http/request/RequestModel"
+	"sixTask/internal/http/request/RequestModel"
 	"encoding/json"
 	"github.com/hibiken/asynq"
 )
@@ -86,9 +86,9 @@ Existem duas maneiras de disparar um job:
 package JobHandler
 
 import (
-	"boilerPlate/config/queue"
-	"boilerPlate/internal/http/request/RequestModel"
-	"boilerPlate/internal/jobs"
+	"sixTask/config/queue"
+	"sixTask/internal/http/request/RequestModel"
+	"sixTask/internal/jobs"
 	"github.com/gin-gonic/gin"
 	"github.com/hibiken/asynq"
 )
@@ -130,9 +130,9 @@ func DisparJob(c *gin.Context) {
 package exemplo
 
 import (
-	"boilerPlate/config/queue"
-	"boilerPlate/internal/http/request/RequestModel"
-	"boilerPlate/internal/jobs"
+	"sixTask/config/queue"
+	"sixTask/internal/http/request/RequestModel"
+	"sixTask/internal/jobs"
 	"github.com/hibiken/asynq"
 )
 

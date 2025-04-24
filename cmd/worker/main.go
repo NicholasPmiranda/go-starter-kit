@@ -1,13 +1,12 @@
 package main
 
 import (
-	logger "boilerPlate/config/looger"
-	"boilerPlate/internal/jobs"
 	"fmt"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"os/signal"
+	logger "sixTask/c
 	"syscall"
 	"time"
 
