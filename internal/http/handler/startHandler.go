@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
-	emailp
+	emailprovider "sixTask/config/emailProvider"
 	"time"
 
 	"sixTask/internal/database"
