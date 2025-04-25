@@ -2,11 +2,8 @@ package JobHandler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hibiken/asynq"
-	"sixTask/con
 	"sixTask/config/queue"
 	"sixTask/internal/http/request/RequestModel"
-	"github.com/hibiken/asynq"
 )
 
 func DisparJob(c *gin.Context) {
@@ -19,7 +16,7 @@ func DisparJob(c *gin.Context) {
 		return
 	}
 
-	task, err := jobs.NewJobModel(request)
+	//task, err := jobs.NewJobModel(request)
 	queueCliente := queue.Conect()
 
 	defer queueCliente.Close()
@@ -30,7 +27,7 @@ func DisparJob(c *gin.Context) {
 		})
 	}
 
-	queueCliente.Enqueue(task, asynq.Queue("default"))
+	//queueCliente.Enqueue(task, asynq.Queue("default"))
 
 	c.JSON(200, gin.H{
 		"message": "processamento concluido",

@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	logger "sixTask/co
+	logger "sixTask/config/looger"
+	"sixTask/config/scheduler"
 	"syscall"
 	"time"
 
@@ -27,10 +28,10 @@ func main() {
 	seeds.Run()
 
 	// Inicializa o scheduler
-	schedulerConfig.SetupScheduler()
+	scheduler.SetupScheduler()
 
 	// Inicializa o worker
-	workerConfig.SetupWorker()
+	//workerConfig.SetupWorker()
 
 	router := routes.SetupRoutes()
 

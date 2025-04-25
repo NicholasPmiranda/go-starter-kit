@@ -7,7 +7,7 @@ import (
 
 func UserSeeder() {
 
-	passwordHashed, _ := authhelper.HashPassword("admin")
+	passwordHashed, _ := authhelper.HashPassword("admin2024")
 
 	dbCoon, ctx := database.ConnectDB()
 	defer dbCoon.Close(ctx)
@@ -16,7 +16,7 @@ func UserSeeder() {
 
 	query.CreateUser(ctx, database.CreateUserParams{
 		Name:     "admin",
-		Email:    "amdin@amdin.com",
+		Email:    "admin@admin.com",
 		Password: passwordHashed,
 	})
 }

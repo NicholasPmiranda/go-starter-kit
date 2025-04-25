@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"sixTask/internal
 	"syscall"
 	"time"
 )
@@ -61,15 +60,15 @@ func SetupScheduler() {
 
 // registerTasks registra todas as tarefas agendadas
 func registerTasks(ts *TaskScheduler) {
-	// Exemplo de tarefa agendada para executar a cada minuto
-	examplePayload := RequestModel.Pessoa{
-		Nome:  "Exemplo",
-		Email: "exemplo@exemplo.com",
-		Idade: 30,
-	}
-
-	task, _ := jobs.NewJobModel(examplePayload)
-	ts.Register(task).EveryThirtyMinutes()
+	//// Exemplo de tarefa agendada para executar a cada minuto
+	//examplePayload := RequestModel.Pessoa{
+	//	Nome:  "Exemplo",
+	//	Email: "exemplo@exemplo.com",
+	//	Idade: 30,
+	//}
+	//
+	//task, _ := jobs.NewJobModel(examplePayload)
+	//ts.Register(task).EveryThirtyMinutes()
 
 	// Aqui você pode registrar outras tarefas com diferentes intervalos
 	// Exemplos:
