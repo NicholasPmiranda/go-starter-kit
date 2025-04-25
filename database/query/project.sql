@@ -1,0 +1,26 @@
+-- name: FindManyProjects :many
+SELECT * FROM projects;
+
+-- name: FindProjectById :one
+SELECT * FROM projects WHERE id = @id;
+
+-- name: FindProjectsByClientId :many
+SELECT * FROM projects WHERE client_id = @client_id;
+
+-- name: FindProjectsByUserId :many
+SELECT * FROM projects WHERE user_id = @user_id;
+
+-- name: CreateProject :one
+INSERT INTO projects (name, description, client_id, user_id, status, start_date, end_date)
+VALUES (@name, @description, @client_id, @user_id, @status, @start_date, @end_date) RETURNING *;
+
+-- name: UpdateProject :one
+UPDATE projects
+SET name = @name, description = @description, client_id = @client_id, user_id = @user_id,
+    status = @status, start_date = @start_date, end_date = @end_date, updated_at = CURRENT_TIMESTAMP
+WHERE id = @id
+RETURNING *;
+
+-- name: DeleteProject :exec
+DELETE FROM projects
+WHERE id = @id;

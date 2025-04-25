@@ -1,13 +1,22 @@
 -- name: FindById :one
-select * from users where id = $1;
+SELECT * FROM users WHERE id = @id;
 
 -- name: FindByEmail :one
-select * from users WHERE email = $1 limit 1;
-
+SELECT * FROM users WHERE email = @email LIMIT 1;
 
 -- name: FindMany :many
-select * from users;
+SELECT * FROM users;
 
 -- name: CreateUser :one
-insert into users (name, email, password)
- values ($1, $2,$3) returning *;
+INSERT INTO users (name, email, password)
+VALUES (@name, @email, @password) RETURNING *;
+
+-- name: UpdateUser :one
+UPDATE users
+SET name = @name, email = @email, password = @password
+WHERE id = @id
+RETURNING *;
+
+-- name: DeleteUser :exec
+DELETE FROM users
+WHERE id = @id;
