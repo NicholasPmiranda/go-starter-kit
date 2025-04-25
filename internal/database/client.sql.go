@@ -11,6 +11,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countClients = `-- name: CountClients :one
+SELECT COUNT(*) FROM clients
+`
+
+func (q *Queries) CountClients(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countClients)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createClient = `-- name: CreateClient :one
 INSERT INTO clients (name, email, phone, address)
 VALUES ($1, $2, $3, $4) RETURNING id, name, email, phone, address, created_at, updated_at
@@ -78,6 +89,46 @@ SELECT id, name, email, phone, address, created_at, updated_at FROM clients
 
 func (q *Queries) FindManyClients(ctx context.Context) ([]Client, error) {
 	rows, err := q.db.Query(ctx, findManyClients)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Client
+	for rows.Next() {
+		var i Client
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.Phone,
+			&i.Address,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findManyClientsWithPagination = `-- name: FindManyClientsWithPagination :many
+SELECT id, name, email, phone, address, created_at, updated_at FROM clients
+WHERE id > 0
+ORDER BY id
+LIMIT $2 OFFSET $1
+`
+
+type FindManyClientsWithPaginationParams struct {
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+}
+
+func (q *Queries) FindManyClientsWithPagination(ctx context.Context, arg FindManyClientsWithPaginationParams) ([]Client, error) {
+	rows, err := q.db.Query(ctx, findManyClientsWithPagination, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

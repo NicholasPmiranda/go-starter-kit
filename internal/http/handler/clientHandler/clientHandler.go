@@ -10,27 +10,31 @@ import (
 
 	"sixTask/internal/database"
 	"sixTask/internal/http/request/clientRequest"
+	"sixTask/internal/repository/clientRepository"
 )
 
-// GetClients retorna todos os clientes
+// GetClients retorna todos os clientes com paginação
 func GetClients(c *gin.Context) {
-	conn, ctx := database.ConnectDB()
-	defer conn.Close(context.Background())
+	ctx := context.Background()
 
-	queries := database.New(conn)
-	clients, err := queries.FindManyClients(ctx)
+	// Parâmetros de paginação
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+
+	// Buscar clientes com paginação via repositório
+	result, err := clientRepository.GetClientsWithPagination(ctx, page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar clientes: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, clients)
+	// Retornar o resultado
+	c.JSON(http.StatusOK, result)
 }
 
 // GetClient retorna um cliente pelo ID
 func GetClient(c *gin.Context) {
-	conn, ctx := database.ConnectDB()
-	defer conn.Close(context.Background())
+	ctx := context.Background()
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -38,8 +42,7 @@ func GetClient(c *gin.Context) {
 		return
 	}
 
-	queries := database.New(conn)
-	client, err := queries.FindClientById(ctx, id)
+	client, err := clientRepository.GetClient(ctx, id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Cliente não encontrado"})
 		return
@@ -50,8 +53,7 @@ func GetClient(c *gin.Context) {
 
 // CreateClient cria um novo cliente
 func CreateClient(c *gin.Context) {
-	conn, ctx := database.ConnectDB()
-	defer conn.Close(context.Background())
+	ctx := context.Background()
 
 	var request clientRequest.CreateClientRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -67,9 +69,8 @@ func CreateClient(c *gin.Context) {
 		Address pgtype.Text `json:"address"`
 	})
 
-	// Cria o cliente usando o sqlc
-	queries := database.New(conn)
-	client, err := queries.CreateClient(ctx, database.CreateClientParams{
+	// Cria o cliente usando o repositório
+	client, err := clientRepository.CreateClient(ctx, database.CreateClientParams{
 		Name:    params.Name,
 		Email:   params.Email,
 		Phone:   params.Phone,
@@ -85,8 +86,7 @@ func CreateClient(c *gin.Context) {
 
 // UpdateClient atualiza um cliente existente
 func UpdateClient(c *gin.Context) {
-	conn, ctx := database.ConnectDB()
-	defer conn.Close(context.Background())
+	ctx := context.Background()
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -109,9 +109,8 @@ func UpdateClient(c *gin.Context) {
 		ID      int64       `json:"id"`
 	})
 
-	// Atualiza o cliente usando o sqlc
-	queries := database.New(conn)
-	client, err := queries.UpdateClient(ctx, database.UpdateClientParams{
+	// Atualiza o cliente usando o repositório
+	client, err := clientRepository.UpdateClient(ctx, database.UpdateClientParams{
 		Name:    params.Name,
 		Email:   params.Email,
 		Phone:   params.Phone,
@@ -128,8 +127,7 @@ func UpdateClient(c *gin.Context) {
 
 // DeleteClient remove um cliente
 func DeleteClient(c *gin.Context) {
-	conn, ctx := database.ConnectDB()
-	defer conn.Close(context.Background())
+	ctx := context.Background()
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -137,8 +135,7 @@ func DeleteClient(c *gin.Context) {
 		return
 	}
 
-	queries := database.New(conn)
-	err = queries.DeleteClient(ctx, id)
+	err = clientRepository.DeleteClient(ctx, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao remover cliente: " + err.Error()})
 		return

@@ -1,6 +1,15 @@
 -- name: FindManyClients :many
 SELECT * FROM clients;
 
+-- name: FindManyClientsWithPagination :many
+SELECT * FROM clients
+WHERE id > 0
+ORDER BY id
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: CountClients :one
+SELECT COUNT(*) FROM clients;
+
 -- name: FindClientById :one
 SELECT * FROM clients WHERE id = @id;
 

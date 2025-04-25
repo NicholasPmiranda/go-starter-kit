@@ -76,3 +76,4 @@ Para informações mais detalhadas sobre como usar os diferentes componentes do 
 - [Como Usar o Sistema de Logs](./logs.md)
 - [Sistema de Autenticação](./autenticacao.md)
 - [Como Usar o Hot Reload](./hot-reload.md)
+- [API de Clientes](endpoints/client/clientes.md)
