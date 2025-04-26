@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"sixTask/internal/database"
+	"sixTask/internal/http/request/subtaskRequest"
 )
 
 // GetSubtasks retorna todas as subtarefas
@@ -121,11 +122,14 @@ func CreateSubtask(c *gin.Context) {
 	conn, ctx := database.ConnectDB()
 	defer conn.Close(context.Background())
 
-	var params database.CreateSubtaskParams
-	if err := c.ShouldBindJSON(&params); err != nil {
+	var request subtaskRequest.CreateSubtaskRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
 		return
 	}
+
+	// Converte a request para o formato esperado pelo sqlc
+	params := request.ToCreateSubtaskParams().(database.CreateSubtaskParams)
 
 	queries := database.New(conn)
 	subtask, err := queries.CreateSubtask(ctx, params)
@@ -148,12 +152,14 @@ func UpdateSubtask(c *gin.Context) {
 		return
 	}
 
-	var params database.UpdateSubtaskParams
-	if err := c.ShouldBindJSON(&params); err != nil {
+	var request subtaskRequest.UpdateSubtaskRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
 		return
 	}
-	params.ID = id
+
+	// Converte a request para o formato esperado pelo sqlc
+	params := request.ToUpdateSubtaskParams(id).(database.UpdateSubtaskParams)
 
 	queries := database.New(conn)
 	subtask, err := queries.UpdateSubtask(ctx, params)

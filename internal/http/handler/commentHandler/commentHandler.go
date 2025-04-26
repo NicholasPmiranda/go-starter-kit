@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"sixTask/internal/database"
+	"sixTask/internal/http/request/commentRequest"
 )
 
 // GetComments retorna todos os comentários
@@ -108,11 +109,14 @@ func CreateComment(c *gin.Context) {
 	conn, ctx := database.ConnectDB()
 	defer conn.Close(context.Background())
 
-	var params database.CreateCommentParams
-	if err := c.ShouldBindJSON(&params); err != nil {
+	var request commentRequest.CreateCommentRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
 		return
 	}
+
+	// Converte a request para o formato esperado pelo sqlc
+	params := request.ToCreateCommentParams().(database.CreateCommentParams)
 
 	queries := database.New(conn)
 	comment, err := queries.CreateComment(ctx, params)
@@ -135,12 +139,14 @@ func UpdateComment(c *gin.Context) {
 		return
 	}
 
-	var params database.UpdateCommentParams
-	if err := c.ShouldBindJSON(&params); err != nil {
+	var request commentRequest.UpdateCommentRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
 		return
 	}
-	params.ID = id
+
+	// Converte a request para o formato esperado pelo sqlc
+	params := request.ToUpdateCommentParams(id).(database.UpdateCommentParams)
 
 	queries := database.New(conn)
 	comment, err := queries.UpdateComment(ctx, params)

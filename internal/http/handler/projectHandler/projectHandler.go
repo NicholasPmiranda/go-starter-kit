@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"sixTask/internal/database"
+	"sixTask/internal/http/request/projectRequest"
 )
 
 // GetProjects retorna todos os projetos
@@ -100,11 +101,14 @@ func CreateProject(c *gin.Context) {
 	conn, ctx := database.ConnectDB()
 	defer conn.Close(context.Background())
 
-	var params database.CreateProjectParams
-	if err := c.ShouldBindJSON(&params); err != nil {
+	var request projectRequest.CreateProjectRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
 		return
 	}
+
+	// Converte a request para o formato esperado pelo sqlc
+	params := request.ToCreateProjectParams().(database.CreateProjectParams)
 
 	queries := database.New(conn)
 	project, err := queries.CreateProject(ctx, params)
@@ -127,12 +131,14 @@ func UpdateProject(c *gin.Context) {
 		return
 	}
 
-	var params database.UpdateProjectParams
-	if err := c.ShouldBindJSON(&params); err != nil {
+	var request projectRequest.UpdateProjectRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
 		return
 	}
-	params.ID = id
+
+	// Converte a request para o formato esperado pelo sqlc
+	params := request.ToUpdateProjectParams(id).(database.UpdateProjectParams)
 
 	queries := database.New(conn)
 	project, err := queries.UpdateProject(ctx, params)

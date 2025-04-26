@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"sixTask/internal/database"
+	"sixTask/internal/http/request/attachmentRequest"
 )
 
 // GetAttachments retorna todos os anexos
@@ -108,11 +109,14 @@ func CreateAttachment(c *gin.Context) {
 	conn, ctx := database.ConnectDB()
 	defer conn.Close(context.Background())
 
-	var params database.CreateAttachmentParams
-	if err := c.ShouldBindJSON(&params); err != nil {
+	var request attachmentRequest.CreateAttachmentRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
 		return
 	}
+
+	// Converte a request para o formato esperado pelo sqlc
+	params := request.ToCreateAttachmentParams().(database.CreateAttachmentParams)
 
 	queries := database.New(conn)
 	attachment, err := queries.CreateAttachment(ctx, params)
@@ -135,12 +139,14 @@ func UpdateAttachment(c *gin.Context) {
 		return
 	}
 
-	var params database.UpdateAttachmentParams
-	if err := c.ShouldBindJSON(&params); err != nil {
+	var request attachmentRequest.UpdateAttachmentRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
 		return
 	}
-	params.ID = id
+
+	// Converte a request para o formato esperado pelo sqlc
+	params := request.ToUpdateAttachmentParams(id).(database.UpdateAttachmentParams)
 
 	queries := database.New(conn)
 	attachment, err := queries.UpdateAttachment(ctx, params)
