@@ -158,9 +158,6 @@ func CreateProject(c *gin.Context) {
 
 // UpdateProject atualiza um projeto existente
 func UpdateProject(c *gin.Context) {
-	conn, ctx := database.ConnectDB()
-	defer conn.Close(context.Background())
-
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
@@ -173,17 +170,17 @@ func UpdateProject(c *gin.Context) {
 		return
 	}
 
-	// Converte a request para o formato esperado pelo sqlc
-	params := request.ToUpdateProjectParams(id).(database.UpdateProjectParams)
-
-	queries := database.New(conn)
-	project, err := queries.UpdateProject(ctx, params)
+	// Chama o repositório para atualizar o projeto e gerenciar as relações com usuários
+	project, users, err := projectRepository.UpdateProjectWithUsers(request, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao atualizar projeto: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, project)
+	// Monta a resposta usando a entidade de projeto
+	response := projectEntity.GetProjectEntity(project, users)
+
+	c.JSON(http.StatusOK, response)
 }
 
 // DeleteProject remove um projeto

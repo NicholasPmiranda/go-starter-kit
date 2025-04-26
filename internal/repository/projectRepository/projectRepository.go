@@ -144,6 +144,56 @@ func UpdateProject(ctx context.Context, params database.UpdateProjectParams) (da
 	return queries.UpdateProject(ctx, params)
 }
 
+// UpdateProjectWithUsers atualiza um projeto existente e suas relações com usuários
+func UpdateProjectWithUsers(request projectRequest.UpdateProjectRequest, id int64) (database.Project, []database.User, error) {
+	// Converter a request para os parâmetros do projeto
+	params := request.ToUpdateProjectParams(id).(database.UpdateProjectParams)
+
+	// Conectar ao banco de dados
+	conn, ctx := database.ConnectDB()
+	defer conn.Close(context.Background())
+
+	queries := database.New(conn)
+
+	// Atualizar o projeto
+	project, err := queries.UpdateProject(ctx, params)
+	if err != nil {
+		return database.Project{}, []database.User{}, err
+	}
+
+	// Excluir todas as relações existentes entre usuários e o projeto
+	err = queries.DeleteUserProjectsByProjectId(ctx, pgtype.Int8{
+		Int64: id,
+		Valid: true,
+	})
+	if err != nil {
+		return database.Project{}, []database.User{}, err
+	}
+
+	// Criar novas relações entre usuários e o projeto
+	for _, user_id := range request.UsersId {
+		err = queries.CreateUserProject(ctx, database.CreateUserProjectParams{
+			UserID: user_id,
+			ProjectID: pgtype.Int8{
+				Int64: id,
+				Valid: true,
+			},
+		})
+		if err != nil {
+			return database.Project{}, []database.User{}, err
+		}
+	}
+
+	// Buscar os usuários para retornar junto com o projeto
+	usersList := conversionTypes.ConvertPgInt8Slice(request.UsersId)
+	users, err := queries.FindManyUserIds(ctx, usersList)
+	if err != nil {
+		return database.Project{}, []database.User{}, err
+	}
+
+	return project, users, nil
+}
+
 // DeleteProject remove um projeto
 func DeleteProject(ctx context.Context, id int64) error {
 	conn, ctx := database.ConnectDB()

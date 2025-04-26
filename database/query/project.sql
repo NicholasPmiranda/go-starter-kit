@@ -53,6 +53,10 @@ values (@user_id, @project_id);
 delete from project_user
 where user_id = @user_id and project_id = @project_id;
 
+-- name: DeleteUserProjectsByProjectId :exec
+DELETE FROM project_user
+WHERE project_id = @project_id;
+
 -- name: CreateProject :one
 INSERT INTO projects (name, description, client_id, status, start_date, end_date)
 VALUES (@name, @description, @client_id, @status, @start_date, @end_date)
