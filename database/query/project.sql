@@ -178,9 +178,6 @@ FROM projects p
 LEFT JOIN project_user up ON p.id = up.project_id
 LEFT JOIN users u ON up.user_id = u.id;
 
-
-
-
 -- name: FindManyProjectsClientWithUsersWithPagination :many
 SELECT
     p.id,
@@ -215,4 +212,43 @@ ORDER BY
     p.id
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
+-- name: FindManyProjectsUserWithUsersWithPagination :many
+SELECT
+    p.id,
+    p.name,
+    p.description,
+    p.client_id,
+    p.status,
+    p.start_date,
+    p.end_date,
+    p.created_at,
+    p.updated_at,
+    COALESCE(
+            json_agg(
+                    json_build_object(
+                            'id', u.id,
+                            'name', u.name,
+                            'email', u.email
+                    )
+            ) FILTER (WHERE u.id IS NOT NULL),
+            '[]'::json
+    ) as users
+FROM
+    projects p
+        LEFT JOIN
+    project_user up ON p.id = up.project_id
+        LEFT JOIN
+    users u ON up.user_id = u.id
+WHERE
+    p.id IN (SELECT project_id FROM project_user WHERE project_user.user_id = @user_id)
+GROUP BY
+    p.id
+ORDER BY
+    p.id
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
+-- name: CountProjectsByUserId :one
+SELECT COUNT(DISTINCT p.id)
+FROM projects p
+JOIN project_user pu ON p.id = pu.project_id
+WHERE pu.user_id = @user_id;

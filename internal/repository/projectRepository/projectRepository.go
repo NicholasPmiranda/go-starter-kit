@@ -235,8 +235,8 @@ func GetProjectsByClientIdAndPagination(clientId pgtype.Int8, page, limit int) (
 	return projects, total, nil
 }
 
-// GetProjectsByUserIdAndPagination retorna projetos pelo ID do cliente com paginação
-func GetProjectsByUserIdAndPagination(clientId pgtype.Int8, page, limit int) ([]database.FindManyProjectsClientWithUsersWithPaginationRow, int64, error) {
+// GetProjectsByUserIdAndPagination retorna projetos pelo ID do usuário com paginação
+func GetProjectsByUserIdAndPagination(userId pgtype.Int8, page, limit int) ([]database.FindManyProjectsUserWithUsersWithPaginationRow, int64, error) {
 	conn, ctx := database.ConnectDB()
 	defer conn.Close(context.Background())
 
@@ -254,16 +254,16 @@ func GetProjectsByUserIdAndPagination(clientId pgtype.Int8, page, limit int) ([]
 	offset := (page - 1) * limit
 
 	// Buscar o total de projetos para metadados de paginação
-	total, err := queries.CountProjectsByClientId(ctx, clientId)
+	total, err := queries.CountProjectsByUserId(ctx, userId)
 	if err != nil {
 		return nil, 0, err
 	}
 
 	// Buscar projetos com paginação via SQL
-	projects, err := queries.FindManyProjectsClientWithUsersWithPagination(ctx, database.FindManyProjectsClientWithUsersWithPaginationParams{
-		ClientID: clientId,
-		Offset:   int32(offset),
-		Limit:    int32(limit),
+	projects, err := queries.FindManyProjectsUserWithUsersWithPagination(ctx, database.FindManyProjectsUserWithUsersWithPaginationParams{
+		UserID: userId,
+		Offset: int32(offset),
+		Limit:  int32(limit),
 	})
 	if err != nil {
 		return nil, 0, err

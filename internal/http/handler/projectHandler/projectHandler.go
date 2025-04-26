@@ -107,8 +107,15 @@ func GetProjectsByUser(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
+	user_id, err := strconv.ParseInt(c.Param("user_id"), 10, 64)
+
+	userPgId := pgtype.Int8{
+		Int64: user_id,
+		Valid: true,
+	}
+
 	// Chamar repositório para buscar projetos com paginação
-	projects, total, err := projectRepository.GetProjectsWithUsersAndPagination(page, limit)
+	projects, total, err := projectRepository.GetProjectsByUserIdAndPagination(userPgId, page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar projetos: " + err.Error()})
 		return
