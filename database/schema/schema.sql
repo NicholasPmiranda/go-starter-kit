@@ -20,7 +20,6 @@ CREATE TABLE projects (
     name TEXT NOT NULL,
     description TEXT,
     client_id BIGINT REFERENCES clients(id) ON DELETE CASCADE,
-    user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
     status TEXT NOT NULL DEFAULT 'pending',
     start_date DATE,
     end_date DATE,
@@ -98,3 +97,10 @@ CREATE TABLE notifications (
 
 CREATE INDEX idx_notifications_user ON notifications(user_id);
 CREATE INDEX idx_notifications_notifiable ON notifications(notifiable_type, notifiable_id);
+
+
+create table user_project
+(
+    user_id BIGINT,
+    project_id BIGINT
+)

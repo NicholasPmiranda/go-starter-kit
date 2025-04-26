@@ -10,7 +10,8 @@ import (
 )
 
 const countUsers = `-- name: CountUsers :one
-SELECT COUNT(*) FROM users
+SELECT COUNT(*)
+FROM users
 `
 
 func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
@@ -22,7 +23,8 @@ func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (name, email, password)
-VALUES ($1, $2, $3) RETURNING id, name, email, password
+VALUES ($1, $2, $3)
+RETURNING id, name, email, password
 `
 
 type CreateUserParams struct {
@@ -44,7 +46,8 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const deleteUser = `-- name: DeleteUser :exec
-DELETE FROM users
+DELETE
+FROM users
 WHERE id = $1
 `
 
@@ -54,7 +57,10 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const findByEmail = `-- name: FindByEmail :one
-SELECT id, name, email, password FROM users WHERE email = $1 LIMIT 1
+SELECT id, name, email, password
+FROM users
+WHERE email = $1
+LIMIT 1
 `
 
 func (q *Queries) FindByEmail(ctx context.Context, email string) (User, error) {
@@ -70,7 +76,9 @@ func (q *Queries) FindByEmail(ctx context.Context, email string) (User, error) {
 }
 
 const findById = `-- name: FindById :one
-SELECT id, name, email, password FROM users WHERE id = $1
+SELECT id, name, email, password
+FROM users
+WHERE id = $1
 `
 
 func (q *Queries) FindById(ctx context.Context, id int64) (User, error) {
@@ -86,7 +94,8 @@ func (q *Queries) FindById(ctx context.Context, id int64) (User, error) {
 }
 
 const findMany = `-- name: FindMany :many
-SELECT id, name, email, password FROM users
+SELECT id, name, email, password
+FROM users
 `
 
 func (q *Queries) FindMany(ctx context.Context) ([]User, error) {
@@ -114,8 +123,40 @@ func (q *Queries) FindMany(ctx context.Context) ([]User, error) {
 	return items, nil
 }
 
+const findManyUserIds = `-- name: FindManyUserIds :many
+SELECT id, name, email, password
+FROM users
+WHERE id = ANY($1::bigint[])
+`
+
+func (q *Queries) FindManyUserIds(ctx context.Context, ids []int64) ([]User, error) {
+	rows, err := q.db.Query(ctx, findManyUserIds, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.Password,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findManyWithPagination = `-- name: FindManyWithPagination :many
-SELECT id, name, email, password FROM users
+SELECT id, name, email, password
+FROM users
 WHERE id > 0
 ORDER BY id
 LIMIT $2 OFFSET $1
@@ -153,7 +194,9 @@ func (q *Queries) FindManyWithPagination(ctx context.Context, arg FindManyWithPa
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET name = $1, email = $2, password = $3
+SET name     = $1,
+    email    = $2,
+    password = $3
 WHERE id = $4
 RETURNING id, name, email, password
 `

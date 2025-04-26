@@ -2,6 +2,9 @@ package projectRepository
 
 import (
 	"context"
+	"github.com/jackc/pgx/v5/pgtype"
+	"sixTask/helpers/conversionTypes"
+	"sixTask/internal/http/request/projectRequest"
 
 	"sixTask/internal/database"
 )
@@ -101,12 +104,35 @@ func GetProject(ctx context.Context, id int64) (database.Project, error) {
 }
 
 // CreateProject cria um novo projeto
-func CreateProject(ctx context.Context, params database.CreateProjectParams) (database.Project, error) {
+func CreateProject(request projectRequest.CreateProjectRequest) (database.Project, []database.User, error) {
+	params := request.ToCreateProjectParams().(database.CreateProjectParams)
 	conn, ctx := database.ConnectDB()
 	defer conn.Close(context.Background())
 
 	queries := database.New(conn)
-	return queries.CreateProject(ctx, params)
+	project, err := queries.CreateProject(ctx, params)
+
+	if err != nil {
+		return database.Project{}, []database.User{}, err
+	}
+
+	for _, user_id := range request.UsersId {
+
+		queries.CreateUserProject(ctx, database.CreateUserProjectParams{
+			UserID: user_id,
+			ProjectID: pgtype.Int8{
+				Int64: project.ID,
+				Valid: true,
+			},
+		})
+
+	}
+
+	usersList := conversionTypes.ConvertPgInt8Slice(request.UsersId)
+
+	users, err := queries.FindManyUserIds(ctx, usersList)
+
+	return project, users, nil
 }
 
 // UpdateProject atualiza um projeto existente

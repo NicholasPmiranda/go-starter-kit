@@ -9,13 +9,13 @@ import (
 // CreateProjectRequest representa os dados necessários para criar um projeto
 // com validações do gin-gonic
 type CreateProjectRequest struct {
-	Name        string      `json:"name" binding:"required,min=3,max=100"`
-	Description pgtype.Text `json:"description" binding:"omitempty"`
-	ClientID    pgtype.Int8 `json:"client_id" binding:"required"`
-	UserID      pgtype.Int8 `json:"user_id" binding:"required"`
-	Status      string      `json:"status" binding:"required"`
-	StartDate   pgtype.Date `json:"start_date" binding:"omitempty"`
-	EndDate     pgtype.Date `json:"end_date" binding:"omitempty"`
+	Name        string        `json:"name" binding:"required,min=3,max=100"`
+	Description pgtype.Text   `json:"description" binding:"omitempty"`
+	ClientID    pgtype.Int8   `json:"client_id" binding:"required"`
+	Status      string        `json:"status" binding:"required"`
+	StartDate   pgtype.Date   `json:"start_date" binding:"omitempty"`
+	EndDate     pgtype.Date   `json:"end_date" binding:"omitempty"`
+	UsersId     []pgtype.Int8 `json:"users_id" binding:"required"`
 }
 
 // UpdateProjectRequest representa os dados necessários para atualizar um projeto
@@ -36,7 +36,6 @@ func (r *CreateProjectRequest) ToCreateProjectParams() interface{} {
 		Name:        r.Name,
 		Description: r.Description,
 		ClientID:    r.ClientID,
-		UserID:      r.UserID,
 		Status:      r.Status,
 		StartDate:   r.StartDate,
 		EndDate:     r.EndDate,
@@ -49,7 +48,6 @@ func (r *UpdateProjectRequest) ToUpdateProjectParams(id int64) interface{} {
 		Name:        r.Name,
 		Description: r.Description,
 		ClientID:    r.ClientID,
-		UserID:      r.UserID,
 		Status:      r.Status,
 		StartDate:   r.StartDate,
 		EndDate:     r.EndDate,

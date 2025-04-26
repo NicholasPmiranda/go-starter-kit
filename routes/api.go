@@ -17,7 +17,7 @@ import (
 	taskhandler "sixTask/internal/http/handler/taskHandler"
 	userhandler "sixTask/internal/http/handler/userHandler"
 	"sixTask/internal/http/validator"
-	
+	authmiddleware "sixTask/internal/middleware/authMiddleware"
 )
 
 func SetupRoutes() *gin.Engine {

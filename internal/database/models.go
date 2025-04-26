@@ -60,7 +60,6 @@ type Project struct {
 	Name        string           `json:"name"`
 	Description pgtype.Text      `json:"description"`
 	ClientID    pgtype.Int8      `json:"client_id"`
-	UserID      pgtype.Int8      `json:"user_id"`
 	Status      string           `json:"status"`
 	StartDate   pgtype.Date      `json:"start_date"`
 	EndDate     pgtype.Date      `json:"end_date"`
@@ -226,4 +225,9 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type UserProject struct {
+	UserID    pgtype.Int8 `json:"user_id"`
+	ProjectID pgtype.Int8 `json:"project_id"`
 }

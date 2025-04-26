@@ -3,6 +3,8 @@ package projectHandler
 import (
 	"context"
 	"net/http"
+	"sixTask/internal/entity/projectEntity"
+	"sixTask/internal/repository/projectRepository"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -75,32 +77,11 @@ func GetProjectsByClient(c *gin.Context) {
 
 // GetProjectsByUser retorna projetos pelo ID do usuário
 func GetProjectsByUser(c *gin.Context) {
-	conn, ctx := database.ConnectDB()
-	defer conn.Close(context.Background())
 
-	userId, err := strconv.ParseInt(c.Param("user_id"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID do usuário inválido"})
-		return
-	}
-
-	// Converter int64 para pgtype.Int8
-	userIdPg := pgtype.Int8{Int64: userId, Valid: true}
-
-	queries := database.New(conn)
-	projects, err := queries.FindProjectsByUserId(ctx, userIdPg)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar projetos: " + err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, projects)
 }
 
 // CreateProject cria um novo projeto
 func CreateProject(c *gin.Context) {
-	conn, ctx := database.ConnectDB()
-	defer conn.Close(context.Background())
 
 	var request projectRequest.CreateProjectRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -108,17 +89,15 @@ func CreateProject(c *gin.Context) {
 		return
 	}
 
-	// Converte a request para o formato esperado pelo sqlc
-	params := request.ToCreateProjectParams().(database.CreateProjectParams)
+	project, users, err := projectRepository.CreateProject(request)
 
-	queries := database.New(conn)
-	project, err := queries.CreateProject(ctx, params)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao criar projeto: " + err.Error()})
-		return
 	}
 
-	c.JSON(http.StatusCreated, project)
+	response := projectEntity.GetProjectEntity(project, users)
+
+	c.JSON(http.StatusCreated, response)
 }
 
 // UpdateProject atualiza um projeto existente

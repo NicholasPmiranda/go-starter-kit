@@ -12,7 +12,8 @@ import (
 )
 
 const countProjects = `-- name: CountProjects :one
-SELECT COUNT(*) FROM projects
+SELECT COUNT(*)
+FROM projects
 `
 
 func (q *Queries) CountProjects(ctx context.Context) (int64, error) {
@@ -23,15 +24,15 @@ func (q *Queries) CountProjects(ctx context.Context) (int64, error) {
 }
 
 const createProject = `-- name: CreateProject :one
-INSERT INTO projects (name, description, client_id, user_id, status, start_date, end_date)
-VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, name, description, client_id, user_id, status, start_date, end_date, created_at, updated_at
+INSERT INTO projects (name, description, client_id, status, start_date, end_date)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, name, description, client_id, status, start_date, end_date, created_at, updated_at
 `
 
 type CreateProjectParams struct {
 	Name        string      `json:"name"`
 	Description pgtype.Text `json:"description"`
 	ClientID    pgtype.Int8 `json:"client_id"`
-	UserID      pgtype.Int8 `json:"user_id"`
 	Status      string      `json:"status"`
 	StartDate   pgtype.Date `json:"start_date"`
 	EndDate     pgtype.Date `json:"end_date"`
@@ -42,7 +43,6 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		arg.Name,
 		arg.Description,
 		arg.ClientID,
-		arg.UserID,
 		arg.Status,
 		arg.StartDate,
 		arg.EndDate,
@@ -53,7 +53,6 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		&i.Name,
 		&i.Description,
 		&i.ClientID,
-		&i.UserID,
 		&i.Status,
 		&i.StartDate,
 		&i.EndDate,
@@ -63,8 +62,24 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 	return i, err
 }
 
+const createUserProject = `-- name: CreateUserProject :exec
+insert into user_project (user_id, project_id)
+values ($1, $2)
+`
+
+type CreateUserProjectParams struct {
+	UserID    pgtype.Int8 `json:"user_id"`
+	ProjectID pgtype.Int8 `json:"project_id"`
+}
+
+func (q *Queries) CreateUserProject(ctx context.Context, arg CreateUserProjectParams) error {
+	_, err := q.db.Exec(ctx, createUserProject, arg.UserID, arg.ProjectID)
+	return err
+}
+
 const deleteProject = `-- name: DeleteProject :exec
-DELETE FROM projects
+DELETE
+FROM projects
 WHERE id = $1
 `
 
@@ -73,8 +88,50 @@ func (q *Queries) DeleteProject(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteUserProject = `-- name: DeleteUserProject :exec
+delete from user_project
+where user_id = $1 and project_id = $2
+`
+
+type DeleteUserProjectParams struct {
+	UserID    pgtype.Int8 `json:"user_id"`
+	ProjectID pgtype.Int8 `json:"project_id"`
+}
+
+func (q *Queries) DeleteUserProject(ctx context.Context, arg DeleteUserProjectParams) error {
+	_, err := q.db.Exec(ctx, deleteUserProject, arg.UserID, arg.ProjectID)
+	return err
+}
+
+const finUsersByProject = `-- name: FinUsersByProject :many
+select user_id, project_id
+from user_project
+where project_id = $1
+`
+
+func (q *Queries) FinUsersByProject(ctx context.Context, projectID pgtype.Int8) ([]UserProject, error) {
+	rows, err := q.db.Query(ctx, finUsersByProject, projectID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UserProject
+	for rows.Next() {
+		var i UserProject
+		if err := rows.Scan(&i.UserID, &i.ProjectID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findManyProjects = `-- name: FindManyProjects :many
-SELECT id, name, description, client_id, user_id, status, start_date, end_date, created_at, updated_at FROM projects
+SELECT id, name, description, client_id, status, start_date, end_date, created_at, updated_at
+FROM projects
 `
 
 func (q *Queries) FindManyProjects(ctx context.Context) ([]Project, error) {
@@ -91,7 +148,6 @@ func (q *Queries) FindManyProjects(ctx context.Context) ([]Project, error) {
 			&i.Name,
 			&i.Description,
 			&i.ClientID,
-			&i.UserID,
 			&i.Status,
 			&i.StartDate,
 			&i.EndDate,
@@ -109,7 +165,8 @@ func (q *Queries) FindManyProjects(ctx context.Context) ([]Project, error) {
 }
 
 const findManyProjectsWithPagination = `-- name: FindManyProjectsWithPagination :many
-SELECT id, name, description, client_id, user_id, status, start_date, end_date, created_at, updated_at FROM projects
+SELECT id, name, description, client_id, status, start_date, end_date, created_at, updated_at
+FROM projects
 WHERE id > 0
 ORDER BY id
 LIMIT $2 OFFSET $1
@@ -134,7 +191,6 @@ func (q *Queries) FindManyProjectsWithPagination(ctx context.Context, arg FindMa
 			&i.Name,
 			&i.Description,
 			&i.ClientID,
-			&i.UserID,
 			&i.Status,
 			&i.StartDate,
 			&i.EndDate,
@@ -152,7 +208,9 @@ func (q *Queries) FindManyProjectsWithPagination(ctx context.Context, arg FindMa
 }
 
 const findProjectById = `-- name: FindProjectById :one
-SELECT id, name, description, client_id, user_id, status, start_date, end_date, created_at, updated_at FROM projects WHERE id = $1
+SELECT id, name, description, client_id, status, start_date, end_date, created_at, updated_at
+FROM projects
+WHERE id = $1
 `
 
 func (q *Queries) FindProjectById(ctx context.Context, id int64) (Project, error) {
@@ -163,7 +221,6 @@ func (q *Queries) FindProjectById(ctx context.Context, id int64) (Project, error
 		&i.Name,
 		&i.Description,
 		&i.ClientID,
-		&i.UserID,
 		&i.Status,
 		&i.StartDate,
 		&i.EndDate,
@@ -174,7 +231,9 @@ func (q *Queries) FindProjectById(ctx context.Context, id int64) (Project, error
 }
 
 const findProjectsByClientId = `-- name: FindProjectsByClientId :many
-SELECT id, name, description, client_id, user_id, status, start_date, end_date, created_at, updated_at FROM projects WHERE client_id = $1
+SELECT id, name, description, client_id, status, start_date, end_date, created_at, updated_at
+FROM projects
+WHERE client_id = $1
 `
 
 func (q *Queries) FindProjectsByClientId(ctx context.Context, clientID pgtype.Int8) ([]Project, error) {
@@ -191,7 +250,6 @@ func (q *Queries) FindProjectsByClientId(ctx context.Context, clientID pgtype.In
 			&i.Name,
 			&i.Description,
 			&i.ClientID,
-			&i.UserID,
 			&i.Status,
 			&i.StartDate,
 			&i.EndDate,
@@ -208,31 +266,22 @@ func (q *Queries) FindProjectsByClientId(ctx context.Context, clientID pgtype.In
 	return items, nil
 }
 
-const findProjectsByUserId = `-- name: FindProjectsByUserId :many
-SELECT id, name, description, client_id, user_id, status, start_date, end_date, created_at, updated_at FROM projects WHERE user_id = $1
+const findProjectsByUser = `-- name: FindProjectsByUser :many
+select user_id, project_id
+from user_project
+where user_id = $1
 `
 
-func (q *Queries) FindProjectsByUserId(ctx context.Context, userID pgtype.Int8) ([]Project, error) {
-	rows, err := q.db.Query(ctx, findProjectsByUserId, userID)
+func (q *Queries) FindProjectsByUser(ctx context.Context, userID pgtype.Int8) ([]UserProject, error) {
+	rows, err := q.db.Query(ctx, findProjectsByUser, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Project
+	var items []UserProject
 	for rows.Next() {
-		var i Project
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Description,
-			&i.ClientID,
-			&i.UserID,
-			&i.Status,
-			&i.StartDate,
-			&i.EndDate,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
+		var i UserProject
+		if err := rows.Scan(&i.UserID, &i.ProjectID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -245,17 +294,21 @@ func (q *Queries) FindProjectsByUserId(ctx context.Context, userID pgtype.Int8) 
 
 const updateProject = `-- name: UpdateProject :one
 UPDATE projects
-SET name = $1, description = $2, client_id = $3, user_id = $4,
-    status = $5, start_date = $6, end_date = $7, updated_at = CURRENT_TIMESTAMP
-WHERE id = $8
-RETURNING id, name, description, client_id, user_id, status, start_date, end_date, created_at, updated_at
+SET name        = $1,
+    description = $2,
+    client_id   = $3,
+    status      = $4,
+    start_date  = $5,
+    end_date    = $6,
+    updated_at  = CURRENT_TIMESTAMP
+WHERE id = $7
+RETURNING id, name, description, client_id, status, start_date, end_date, created_at, updated_at
 `
 
 type UpdateProjectParams struct {
 	Name        string      `json:"name"`
 	Description pgtype.Text `json:"description"`
 	ClientID    pgtype.Int8 `json:"client_id"`
-	UserID      pgtype.Int8 `json:"user_id"`
 	Status      string      `json:"status"`
 	StartDate   pgtype.Date `json:"start_date"`
 	EndDate     pgtype.Date `json:"end_date"`
@@ -267,7 +320,6 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 		arg.Name,
 		arg.Description,
 		arg.ClientID,
-		arg.UserID,
 		arg.Status,
 		arg.StartDate,
 		arg.EndDate,
@@ -279,7 +331,6 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 		&i.Name,
 		&i.Description,
 		&i.ClientID,
-		&i.UserID,
 		&i.Status,
 		&i.StartDate,
 		&i.EndDate,
