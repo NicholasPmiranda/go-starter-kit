@@ -25,24 +25,21 @@ WHERE client_id = @client_id;
 
 -- name: FindProjectsByUser :many
 select *
-from user_project
+from project_user
 where user_id = @user_id;
-
 
 -- name: FinUsersByProject :many
 select *
-from user_project
+from project_user
 where project_id = @project_id;
 
 -- name: CreateUserProject :exec
-insert into user_project (user_id, project_id)
+insert into project_user (user_id, project_id)
 values (@user_id, @project_id);
 
-
 -- name: DeleteUserProject :exec
-delete from user_project
+delete from project_user
 where user_id = @user_id and project_id = @project_id;
-
 
 -- name: CreateProject :one
 INSERT INTO projects (name, description, client_id, status, start_date, end_date)
@@ -65,3 +62,67 @@ RETURNING *;
 DELETE
 FROM projects
 WHERE id = @id;
+
+-- name: FindProjectWithUsers :one
+SELECT
+    p.id,
+    p.name,
+    p.description,
+    p.client_id,
+    p.status,
+    p.start_date,
+    p.end_date,
+    p.created_at,
+    p.updated_at,
+    COALESCE(
+        json_agg(
+            json_build_object(
+                'id', u.id,
+                'name', u.name,
+                'email', u.email
+            )
+        ) FILTER (WHERE u.id IS NOT NULL),
+        '[]'::json
+    ) as users
+FROM
+    projects p
+LEFT JOIN
+    project_user up ON p.id = up.project_id
+LEFT JOIN
+    users u ON up.user_id = u.id
+WHERE
+    p.id = @project_id
+GROUP BY
+    p.id;
+
+-- name: FindManyProjectsWithUsers :many
+SELECT
+    p.id,
+    p.name,
+    p.description,
+    p.client_id,
+    p.status,
+    p.start_date,
+    p.end_date,
+    p.created_at,
+    p.updated_at,
+    COALESCE(
+        json_agg(
+            json_build_object(
+                'id', u.id,
+                'name', u.name,
+                'email', u.email
+            )
+        ) FILTER (WHERE u.id IS NOT NULL),
+        '[]'::json
+    ) as users
+FROM
+    projects p
+LEFT JOIN
+    project_user up ON p.id = up.project_id
+LEFT JOIN
+    users u ON up.user_id = u.id
+GROUP BY
+    p.id
+ORDER BY
+    p.id;

@@ -67,6 +67,11 @@ type Project struct {
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
 }
 
+type ProjectUser struct {
+	UserID    pgtype.Int8 `json:"user_id"`
+	ProjectID pgtype.Int8 `json:"project_id"`
+}
+
 type Shipment struct {
 	ShipmentID                            pgtype.Text    `json:"shipment_id"`
 	Trans                                 pgtype.Text    `json:"trans"`
@@ -225,9 +230,4 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
-}
-
-type UserProject struct {
-	UserID    pgtype.Int8 `json:"user_id"`
-	ProjectID pgtype.Int8 `json:"project_id"`
 }

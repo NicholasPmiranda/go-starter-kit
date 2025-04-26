@@ -63,7 +63,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 }
 
 const createUserProject = `-- name: CreateUserProject :exec
-insert into user_project (user_id, project_id)
+insert into project_user (user_id, project_id)
 values ($1, $2)
 `
 
@@ -89,7 +89,7 @@ func (q *Queries) DeleteProject(ctx context.Context, id int64) error {
 }
 
 const deleteUserProject = `-- name: DeleteUserProject :exec
-delete from user_project
+delete from project_user
 where user_id = $1 and project_id = $2
 `
 
@@ -105,19 +105,19 @@ func (q *Queries) DeleteUserProject(ctx context.Context, arg DeleteUserProjectPa
 
 const finUsersByProject = `-- name: FinUsersByProject :many
 select user_id, project_id
-from user_project
+from project_user
 where project_id = $1
 `
 
-func (q *Queries) FinUsersByProject(ctx context.Context, projectID pgtype.Int8) ([]UserProject, error) {
+func (q *Queries) FinUsersByProject(ctx context.Context, projectID pgtype.Int8) ([]ProjectUser, error) {
 	rows, err := q.db.Query(ctx, finUsersByProject, projectID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []UserProject
+	var items []ProjectUser
 	for rows.Next() {
-		var i UserProject
+		var i ProjectUser
 		if err := rows.Scan(&i.UserID, &i.ProjectID); err != nil {
 			return nil, err
 		}
@@ -207,6 +207,83 @@ func (q *Queries) FindManyProjectsWithPagination(ctx context.Context, arg FindMa
 	return items, nil
 }
 
+const findManyProjectsWithUsers = `-- name: FindManyProjectsWithUsers :many
+SELECT
+    p.id,
+    p.name,
+    p.description,
+    p.client_id,
+    p.status,
+    p.start_date,
+    p.end_date,
+    p.created_at,
+    p.updated_at,
+    COALESCE(
+        json_agg(
+            json_build_object(
+                'id', u.id,
+                'name', u.name,
+                'email', u.email
+            )
+        ) FILTER (WHERE u.id IS NOT NULL),
+        '[]'::json
+    ) as users
+FROM
+    projects p
+LEFT JOIN
+    project_user up ON p.id = up.project_id
+LEFT JOIN
+    users u ON up.user_id = u.id
+GROUP BY
+    p.id
+ORDER BY
+    p.id
+`
+
+type FindManyProjectsWithUsersRow struct {
+	ID          int64            `json:"id"`
+	Name        string           `json:"name"`
+	Description pgtype.Text      `json:"description"`
+	ClientID    pgtype.Int8      `json:"client_id"`
+	Status      string           `json:"status"`
+	StartDate   pgtype.Date      `json:"start_date"`
+	EndDate     pgtype.Date      `json:"end_date"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	Users       interface{}      `json:"users"`
+}
+
+func (q *Queries) FindManyProjectsWithUsers(ctx context.Context) ([]FindManyProjectsWithUsersRow, error) {
+	rows, err := q.db.Query(ctx, findManyProjectsWithUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FindManyProjectsWithUsersRow
+	for rows.Next() {
+		var i FindManyProjectsWithUsersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.ClientID,
+			&i.Status,
+			&i.StartDate,
+			&i.EndDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Users,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findProjectById = `-- name: FindProjectById :one
 SELECT id, name, description, client_id, status, start_date, end_date, created_at, updated_at
 FROM projects
@@ -226,6 +303,70 @@ func (q *Queries) FindProjectById(ctx context.Context, id int64) (Project, error
 		&i.EndDate,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const findProjectWithUsers = `-- name: FindProjectWithUsers :one
+SELECT
+    p.id,
+    p.name,
+    p.description,
+    p.client_id,
+    p.status,
+    p.start_date,
+    p.end_date,
+    p.created_at,
+    p.updated_at,
+    COALESCE(
+        json_agg(
+            json_build_object(
+                'id', u.id,
+                'name', u.name,
+                'email', u.email
+            )
+        ) FILTER (WHERE u.id IS NOT NULL),
+        '[]'::json
+    ) as users
+FROM
+    projects p
+LEFT JOIN
+    project_user up ON p.id = up.project_id
+LEFT JOIN
+    users u ON up.user_id = u.id
+WHERE
+    p.id = $1
+GROUP BY
+    p.id
+`
+
+type FindProjectWithUsersRow struct {
+	ID          int64            `json:"id"`
+	Name        string           `json:"name"`
+	Description pgtype.Text      `json:"description"`
+	ClientID    pgtype.Int8      `json:"client_id"`
+	Status      string           `json:"status"`
+	StartDate   pgtype.Date      `json:"start_date"`
+	EndDate     pgtype.Date      `json:"end_date"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	Users       interface{}      `json:"users"`
+}
+
+func (q *Queries) FindProjectWithUsers(ctx context.Context, projectID int64) (FindProjectWithUsersRow, error) {
+	row := q.db.QueryRow(ctx, findProjectWithUsers, projectID)
+	var i FindProjectWithUsersRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.ClientID,
+		&i.Status,
+		&i.StartDate,
+		&i.EndDate,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Users,
 	)
 	return i, err
 }
@@ -268,19 +409,19 @@ func (q *Queries) FindProjectsByClientId(ctx context.Context, clientID pgtype.In
 
 const findProjectsByUser = `-- name: FindProjectsByUser :many
 select user_id, project_id
-from user_project
+from project_user
 where user_id = $1
 `
 
-func (q *Queries) FindProjectsByUser(ctx context.Context, userID pgtype.Int8) ([]UserProject, error) {
+func (q *Queries) FindProjectsByUser(ctx context.Context, userID pgtype.Int8) ([]ProjectUser, error) {
 	rows, err := q.db.Query(ctx, findProjectsByUser, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []UserProject
+	var items []ProjectUser
 	for rows.Next() {
-		var i UserProject
+		var i ProjectUser
 		if err := rows.Scan(&i.UserID, &i.ProjectID); err != nil {
 			return nil, err
 		}

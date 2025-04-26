@@ -99,7 +99,7 @@ CREATE INDEX idx_notifications_user ON notifications(user_id);
 CREATE INDEX idx_notifications_notifiable ON notifications(notifiable_type, notifiable_id);
 
 
-create table user_project
+create table project_user
 (
     user_id BIGINT,
     project_id BIGINT

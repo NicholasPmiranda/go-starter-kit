@@ -21,7 +21,7 @@ func GetProjects(c *gin.Context) {
 	defer conn.Close(context.Background())
 
 	queries := database.New(conn)
-	projects, err := queries.FindManyProjects(ctx)
+	projects, err := queries.FindManyProjectsWithUsers(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar projetos: " + err.Error()})
 		return
@@ -42,7 +42,7 @@ func GetProject(c *gin.Context) {
 	}
 
 	queries := database.New(conn)
-	project, err := queries.FindProjectById(ctx, id)
+	project, err := queries.FindProjectWithUsers(ctx, id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Projeto não encontrado"})
 		return
