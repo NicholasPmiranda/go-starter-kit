@@ -10,6 +10,7 @@ import (
 
 	"sixTask/internal/database"
 	"sixTask/internal/http/request/clientRequest"
+	"sixTask/internal/http/validator"
 	"sixTask/internal/repository/clientRepository"
 )
 
@@ -57,7 +58,7 @@ func CreateClient(c *gin.Context) {
 
 	var request clientRequest.CreateClientRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + validator.Translate(err)})
 		return
 	}
 
@@ -96,7 +97,7 @@ func UpdateClient(c *gin.Context) {
 
 	var request clientRequest.UpdateClientRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + validator.Translate(err)})
 		return
 	}
 

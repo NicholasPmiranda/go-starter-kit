@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"sixTask/internal/database"
+	"sixTask/internal/http/validator"
 )
 
 // GetTasks retorna todas as tarefas
@@ -144,7 +145,7 @@ func CreateTask(c *gin.Context) {
 
 	var params database.CreateTaskParams
 	if err := c.ShouldBindJSON(&params); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + validator.Translate(err)})
 		return
 	}
 
@@ -171,7 +172,7 @@ func UpdateTask(c *gin.Context) {
 
 	var params database.UpdateTaskParams
 	if err := c.ShouldBindJSON(&params); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + validator.Translate(err)})
 		return
 	}
 	params.ID = id

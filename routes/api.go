@@ -16,11 +16,15 @@ import (
 	subtaskhandler "sixTask/internal/http/handler/subtaskHandler"
 	taskhandler "sixTask/internal/http/handler/taskHandler"
 	userhandler "sixTask/internal/http/handler/userHandler"
-	authmiddleware "sixTask/internal/middleware/authMiddleware"
+	"sixTask/internal/http/validator"
+	
 )
 
 func SetupRoutes() *gin.Engine {
 	router := gin.Default()
+
+	// Inicializa o validador com traduções em português
+	validator.InitValidator()
 
 	// Configurar o tamanho máximo de upload para 1GB
 	router.MaxMultipartMemory = 1 << 30 // 1GB

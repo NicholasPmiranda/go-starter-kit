@@ -10,6 +10,7 @@ import (
 
 	"sixTask/internal/database"
 	"sixTask/internal/http/request/projectRequest"
+	"sixTask/internal/http/validator"
 )
 
 // GetProjects retorna todos os projetos
@@ -103,7 +104,7 @@ func CreateProject(c *gin.Context) {
 
 	var request projectRequest.CreateProjectRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + validator.Translate(err)})
 		return
 	}
 
@@ -133,7 +134,7 @@ func UpdateProject(c *gin.Context) {
 
 	var request projectRequest.UpdateProjectRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos: " + validator.Translate(err)})
 		return
 	}
 
