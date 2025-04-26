@@ -7,12 +7,12 @@ import (
 
 func GetProjectEntity(project database.Project, users []database.User) Project {
 	// Create a slice to hold user responses
-	userResponses := make([]userEntity.UserEntity, 0, len(users))
+	userResponses := make([]userEntity.User, 0, len(users))
 
 	// Convert each database.User to UserResponse
 	for _, user := range users {
-		userResponses = append(userResponses, userEntity.UserEntity{
-			ID:    int(user.ID),
+		userResponses = append(userResponses, userEntity.User{
+			ID:    user.ID,
 			Name:  user.Name,
 			Email: user.Email,
 		})

@@ -10,15 +10,24 @@ import (
 
 	"sixTask/internal/database"
 	"sixTask/internal/http/validator"
+	"sixTask/internal/repository/taskRepository"
 )
 
-// GetTasks retorna todas as tarefas
+// GetTasks retorna todas as tarefas com paginação e informações de usuário
 func GetTasks(c *gin.Context) {
-	conn, ctx := database.ConnectDB()
-	defer conn.Close(context.Background())
+	// Extrair parâmetros de paginação da query
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil || page < 1 {
+		page = 1
+	}
 
-	queries := database.New(conn)
-	tasks, err := queries.FindManyTasks(ctx)
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if err != nil || limit < 1 || limit > 100 {
+		limit = 10
+	}
+
+	// Usar o repository para buscar tarefas com paginação e informações de usuário
+	tasks, err := taskRepository.GetTasksWithPaginationAndUsers(context.Background(), page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar tarefas: " + err.Error()})
 		return
@@ -222,9 +231,9 @@ func DeleteTask(c *gin.Context) {
 	queries := database.New(conn)
 	err = queries.DeleteTask(ctx, id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao remover tarefa: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao excluir tarefa: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Tarefa removida com sucesso"})
+	c.JSON(http.StatusOK, gin.H{"message": "Tarefa excluída com sucesso"})
 }

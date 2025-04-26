@@ -45,3 +45,15 @@ RETURNING *;
 -- name: DeleteTask :exec
 DELETE FROM tasks
 WHERE id = @id;
+
+-- name: FindTasksWithUsersPaginated :many
+SELECT t.* FROM tasks t
+WHERE t.id > 0
+ORDER BY t.id
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: FindUsersByTaskIds :many
+SELECT u.* FROM users u
+JOIN tasks t ON t.assigned_to = u.id
+WHERE t.id IN (sqlc.slice('task_ids'))
+ORDER BY u.id;
