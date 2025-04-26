@@ -11,6 +11,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countProjects = `-- name: CountProjects :one
+SELECT COUNT(*) FROM projects
+`
+
+func (q *Queries) CountProjects(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countProjects)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createProject = `-- name: CreateProject :one
 INSERT INTO projects (name, description, client_id, user_id, status, start_date, end_date)
 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, name, description, client_id, user_id, status, start_date, end_date, created_at, updated_at
@@ -68,6 +79,49 @@ SELECT id, name, description, client_id, user_id, status, start_date, end_date, 
 
 func (q *Queries) FindManyProjects(ctx context.Context) ([]Project, error) {
 	rows, err := q.db.Query(ctx, findManyProjects)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Project
+	for rows.Next() {
+		var i Project
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.ClientID,
+			&i.UserID,
+			&i.Status,
+			&i.StartDate,
+			&i.EndDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findManyProjectsWithPagination = `-- name: FindManyProjectsWithPagination :many
+SELECT id, name, description, client_id, user_id, status, start_date, end_date, created_at, updated_at FROM projects
+WHERE id > 0
+ORDER BY id
+LIMIT $2 OFFSET $1
+`
+
+type FindManyProjectsWithPaginationParams struct {
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+}
+
+func (q *Queries) FindManyProjectsWithPagination(ctx context.Context, arg FindManyProjectsWithPaginationParams) ([]Project, error) {
+	rows, err := q.db.Query(ctx, findManyProjectsWithPagination, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

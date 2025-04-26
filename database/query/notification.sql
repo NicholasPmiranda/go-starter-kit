@@ -1,6 +1,15 @@
 -- name: FindManyNotifications :many
 SELECT * FROM notifications;
 
+-- name: FindManyNotificationsWithPagination :many
+SELECT * FROM notifications
+WHERE id > 0
+ORDER BY id
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: CountNotifications :one
+SELECT COUNT(*) FROM notifications;
+
 -- name: FindNotificationById :one
 SELECT * FROM notifications WHERE id = @id;
 

@@ -1,6 +1,15 @@
 -- name: FindManyProjects :many
 SELECT * FROM projects;
 
+-- name: FindManyProjectsWithPagination :many
+SELECT * FROM projects
+WHERE id > 0
+ORDER BY id
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: CountProjects :one
+SELECT COUNT(*) FROM projects;
+
 -- name: FindProjectById :one
 SELECT * FROM projects WHERE id = @id;
 

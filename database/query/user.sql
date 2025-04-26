@@ -7,6 +7,15 @@ SELECT * FROM users WHERE email = @email LIMIT 1;
 -- name: FindMany :many
 SELECT * FROM users;
 
+-- name: FindManyWithPagination :many
+SELECT * FROM users
+WHERE id > 0
+ORDER BY id
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: CountUsers :one
+SELECT COUNT(*) FROM users;
+
 -- name: CreateUser :one
 INSERT INTO users (name, email, password)
 VALUES (@name, @email, @password) RETURNING *;

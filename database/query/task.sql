@@ -1,6 +1,15 @@
 -- name: FindManyTasks :many
 SELECT * FROM tasks;
 
+-- name: FindManyTasksWithPagination :many
+SELECT * FROM tasks
+WHERE id > 0
+ORDER BY id
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: CountTasks :one
+SELECT COUNT(*) FROM tasks;
+
 -- name: FindTaskById :one
 SELECT * FROM tasks WHERE id = @id;
 

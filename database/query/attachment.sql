@@ -1,6 +1,15 @@
 -- name: FindManyAttachments :many
 SELECT * FROM attachments;
 
+-- name: FindManyAttachmentsWithPagination :many
+SELECT * FROM attachments
+WHERE id > 0
+ORDER BY id
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: CountAttachments :one
+SELECT COUNT(*) FROM attachments;
+
 -- name: FindAttachmentById :one
 SELECT * FROM attachments WHERE id = @id;
 

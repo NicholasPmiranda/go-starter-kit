@@ -11,6 +11,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countAttachments = `-- name: CountAttachments :one
+SELECT COUNT(*) FROM attachments
+`
+
+func (q *Queries) CountAttachments(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countAttachments)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createAttachment = `-- name: CreateAttachment :one
 INSERT INTO attachments (filename, filepath, filesize, filetype, user_id, attachable_type, attachable_id)
 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, filename, filepath, filesize, filetype, user_id, attachable_type, attachable_id, created_at, updated_at
@@ -165,6 +176,49 @@ SELECT id, filename, filepath, filesize, filetype, user_id, attachable_type, att
 
 func (q *Queries) FindManyAttachments(ctx context.Context) ([]Attachment, error) {
 	rows, err := q.db.Query(ctx, findManyAttachments)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Attachment
+	for rows.Next() {
+		var i Attachment
+		if err := rows.Scan(
+			&i.ID,
+			&i.Filename,
+			&i.Filepath,
+			&i.Filesize,
+			&i.Filetype,
+			&i.UserID,
+			&i.AttachableType,
+			&i.AttachableID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findManyAttachmentsWithPagination = `-- name: FindManyAttachmentsWithPagination :many
+SELECT id, filename, filepath, filesize, filetype, user_id, attachable_type, attachable_id, created_at, updated_at FROM attachments
+WHERE id > 0
+ORDER BY id
+LIMIT $2 OFFSET $1
+`
+
+type FindManyAttachmentsWithPaginationParams struct {
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+}
+
+func (q *Queries) FindManyAttachmentsWithPagination(ctx context.Context, arg FindManyAttachmentsWithPaginationParams) ([]Attachment, error) {
+	rows, err := q.db.Query(ctx, findManyAttachmentsWithPagination, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

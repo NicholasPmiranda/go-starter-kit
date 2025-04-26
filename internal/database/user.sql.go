@@ -9,6 +9,17 @@ import (
 	"context"
 )
 
+const countUsers = `-- name: CountUsers :one
+SELECT COUNT(*) FROM users
+`
+
+func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countUsers)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (name, email, password)
 VALUES ($1, $2, $3) RETURNING id, name, email, password
@@ -80,6 +91,43 @@ SELECT id, name, email, password FROM users
 
 func (q *Queries) FindMany(ctx context.Context) ([]User, error) {
 	rows, err := q.db.Query(ctx, findMany)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.Password,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findManyWithPagination = `-- name: FindManyWithPagination :many
+SELECT id, name, email, password FROM users
+WHERE id > 0
+ORDER BY id
+LIMIT $2 OFFSET $1
+`
+
+type FindManyWithPaginationParams struct {
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+}
+
+func (q *Queries) FindManyWithPagination(ctx context.Context, arg FindManyWithPaginationParams) ([]User, error) {
+	rows, err := q.db.Query(ctx, findManyWithPagination, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

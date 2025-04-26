@@ -11,6 +11,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countComments = `-- name: CountComments :one
+SELECT COUNT(*) FROM comments
+`
+
+func (q *Queries) CountComments(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countComments)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createComment = `-- name: CreateComment :one
 INSERT INTO comments (content, user_id, commentable_type, commentable_id)
 VALUES ($1, $2, $3, $4) RETURNING id, content, user_id, commentable_type, commentable_id, created_at, updated_at
@@ -147,6 +158,46 @@ SELECT id, content, user_id, commentable_type, commentable_id, created_at, updat
 
 func (q *Queries) FindManyComments(ctx context.Context) ([]Comment, error) {
 	rows, err := q.db.Query(ctx, findManyComments)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Comment
+	for rows.Next() {
+		var i Comment
+		if err := rows.Scan(
+			&i.ID,
+			&i.Content,
+			&i.UserID,
+			&i.CommentableType,
+			&i.CommentableID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findManyCommentsWithPagination = `-- name: FindManyCommentsWithPagination :many
+SELECT id, content, user_id, commentable_type, commentable_id, created_at, updated_at FROM comments
+WHERE id > 0
+ORDER BY id
+LIMIT $2 OFFSET $1
+`
+
+type FindManyCommentsWithPaginationParams struct {
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+}
+
+func (q *Queries) FindManyCommentsWithPagination(ctx context.Context, arg FindManyCommentsWithPaginationParams) ([]Comment, error) {
+	rows, err := q.db.Query(ctx, findManyCommentsWithPagination, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

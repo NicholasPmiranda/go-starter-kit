@@ -36,6 +36,17 @@ func (q *Queries) CompleteSubtask(ctx context.Context, id int64) (Subtask, error
 	return i, err
 }
 
+const countSubtasks = `-- name: CountSubtasks :one
+SELECT COUNT(*) FROM subtasks
+`
+
+func (q *Queries) CountSubtasks(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countSubtasks)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createSubtask = `-- name: CreateSubtask :one
 INSERT INTO subtasks (title, description, task_id, assigned_to, status, due_date)
 VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, title, description, task_id, assigned_to, status, due_date, completed_at, created_at, updated_at
@@ -91,6 +102,49 @@ SELECT id, title, description, task_id, assigned_to, status, due_date, completed
 
 func (q *Queries) FindManySubtasks(ctx context.Context) ([]Subtask, error) {
 	rows, err := q.db.Query(ctx, findManySubtasks)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Subtask
+	for rows.Next() {
+		var i Subtask
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Description,
+			&i.TaskID,
+			&i.AssignedTo,
+			&i.Status,
+			&i.DueDate,
+			&i.CompletedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findManySubtasksWithPagination = `-- name: FindManySubtasksWithPagination :many
+SELECT id, title, description, task_id, assigned_to, status, due_date, completed_at, created_at, updated_at FROM subtasks
+WHERE id > 0
+ORDER BY id
+LIMIT $2 OFFSET $1
+`
+
+type FindManySubtasksWithPaginationParams struct {
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+}
+
+func (q *Queries) FindManySubtasksWithPagination(ctx context.Context, arg FindManySubtasksWithPaginationParams) ([]Subtask, error) {
+	rows, err := q.db.Query(ctx, findManySubtasksWithPagination, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

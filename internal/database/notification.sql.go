@@ -11,6 +11,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countNotifications = `-- name: CountNotifications :one
+SELECT COUNT(*) FROM notifications
+`
+
+func (q *Queries) CountNotifications(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countNotifications)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createNotification = `-- name: CreateNotification :one
 INSERT INTO notifications (user_id, title, content, type, notifiable_type, notifiable_id)
 VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, user_id, title, content, type, read, notifiable_type, notifiable_id, created_at, updated_at, read_at
@@ -67,6 +78,50 @@ SELECT id, user_id, title, content, type, read, notifiable_type, notifiable_id, 
 
 func (q *Queries) FindManyNotifications(ctx context.Context) ([]Notification, error) {
 	rows, err := q.db.Query(ctx, findManyNotifications)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Notification
+	for rows.Next() {
+		var i Notification
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Title,
+			&i.Content,
+			&i.Type,
+			&i.Read,
+			&i.NotifiableType,
+			&i.NotifiableID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.ReadAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findManyNotificationsWithPagination = `-- name: FindManyNotificationsWithPagination :many
+SELECT id, user_id, title, content, type, read, notifiable_type, notifiable_id, created_at, updated_at, read_at FROM notifications
+WHERE id > 0
+ORDER BY id
+LIMIT $2 OFFSET $1
+`
+
+type FindManyNotificationsWithPaginationParams struct {
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+}
+
+func (q *Queries) FindManyNotificationsWithPagination(ctx context.Context, arg FindManyNotificationsWithPaginationParams) ([]Notification, error) {
+	rows, err := q.db.Query(ctx, findManyNotificationsWithPagination, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,15 @@
 -- name: FindManyComments :many
 SELECT * FROM comments;
 
+-- name: FindManyCommentsWithPagination :many
+SELECT * FROM comments
+WHERE id > 0
+ORDER BY id
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: CountComments :one
+SELECT COUNT(*) FROM comments;
+
 -- name: FindCommentById :one
 SELECT * FROM comments WHERE id = @id;
 

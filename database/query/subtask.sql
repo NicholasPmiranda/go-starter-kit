@@ -1,6 +1,15 @@
 -- name: FindManySubtasks :many
 SELECT * FROM subtasks;
 
+-- name: FindManySubtasksWithPagination :many
+SELECT * FROM subtasks
+WHERE id > 0
+ORDER BY id
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: CountSubtasks :one
+SELECT COUNT(*) FROM subtasks;
+
 -- name: FindSubtaskById :one
 SELECT * FROM subtasks WHERE id = @id;
 
