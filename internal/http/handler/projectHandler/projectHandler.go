@@ -17,17 +17,30 @@ import (
 
 // GetProjects retorna todos os projetos
 func GetProjects(c *gin.Context) {
-	conn, ctx := database.ConnectDB()
-	defer conn.Close(context.Background())
+	// Obter parâmetros de paginação da query
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 
-	queries := database.New(conn)
-	projects, err := queries.FindManyProjectsWithUsers(ctx)
+	// Chamar repositório para buscar projetos com paginação
+	projects, total, err := projectRepository.GetProjectsWithUsersAndPagination(page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar projetos: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, projects)
+	// Calcular total de páginas
+	totalPages := (int(total) + limit - 1) / limit
+
+	// Montar resposta com metadados de paginação
+	c.JSON(http.StatusOK, gin.H{
+		"data": projects,
+		"meta": gin.H{
+			"current_page": page,
+			"per_page":     limit,
+			"total":        total,
+			"total_pages":  totalPages,
+		},
+	})
 }
 
 // GetProject retorna um projeto pelo ID
@@ -53,8 +66,9 @@ func GetProject(c *gin.Context) {
 
 // GetProjectsByClient retorna projetos pelo ID do cliente
 func GetProjectsByClient(c *gin.Context) {
-	conn, ctx := database.ConnectDB()
-	defer conn.Close(context.Background())
+	// Obter parâmetros de paginação da query
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 
 	clientId, err := strconv.ParseInt(c.Param("client_id"), 10, 64)
 	if err != nil {
@@ -65,19 +79,54 @@ func GetProjectsByClient(c *gin.Context) {
 	// Converter int64 para pgtype.Int8
 	clientIdPg := pgtype.Int8{Int64: clientId, Valid: true}
 
-	queries := database.New(conn)
-	projects, err := queries.FindProjectsByClientId(ctx, clientIdPg)
+	// Chamar repositório para buscar projetos com paginação
+	projects, total, err := projectRepository.GetProjectsByClientIdAndPagination(clientIdPg, page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar projetos: " + err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, projects)
+	// Calcular total de páginas
+	totalPages := (int(total) + limit - 1) / limit
+
+	// Montar resposta com metadados de paginação
+	c.JSON(http.StatusOK, gin.H{
+		"data": projects,
+		"meta": gin.H{
+			"current_page": page,
+			"per_page":     limit,
+			"total":        total,
+			"total_pages":  totalPages,
+		},
+	})
 }
 
 // GetProjectsByUser retorna projetos pelo ID do usuário
 func GetProjectsByUser(c *gin.Context) {
+	// Obter parâmetros de paginação da query
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
+	// Chamar repositório para buscar projetos com paginação
+	projects, total, err := projectRepository.GetProjectsWithUsersAndPagination(page, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar projetos: " + err.Error()})
+		return
+	}
+
+	// Calcular total de páginas
+	totalPages := (int(total) + limit - 1) / limit
+
+	// Montar resposta com metadados de paginação
+	c.JSON(http.StatusOK, gin.H{
+		"data": projects,
+		"meta": gin.H{
+			"current_page": page,
+			"per_page":     limit,
+			"total":        total,
+			"total_pages":  totalPages,
+		},
+	})
 }
 
 // CreateProject cria um novo projeto

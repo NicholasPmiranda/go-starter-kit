@@ -23,6 +23,18 @@ SELECT *
 FROM projects
 WHERE client_id = @client_id;
 
+-- name: FindProjectsByClientIdWithPagination :many
+SELECT *
+FROM projects
+WHERE client_id = @client_id
+ORDER BY id
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: CountProjectsByClientId :one
+SELECT COUNT(*)
+FROM projects
+WHERE client_id = @client_id;
+
 -- name: FindProjectsByUser :many
 select *
 from project_user
@@ -126,3 +138,81 @@ GROUP BY
     p.id
 ORDER BY
     p.id;
+
+-- name: FindManyProjectsWithUsersWithPagination :many
+SELECT
+    p.id,
+    p.name,
+    p.description,
+    p.client_id,
+    p.status,
+    p.start_date,
+    p.end_date,
+    p.created_at,
+    p.updated_at,
+    COALESCE(
+        json_agg(
+            json_build_object(
+                'id', u.id,
+                'name', u.name,
+                'email', u.email
+            )
+        ) FILTER (WHERE u.id IS NOT NULL),
+        '[]'::json
+    ) as users
+FROM
+    projects p
+LEFT JOIN
+    project_user up ON p.id = up.project_id
+LEFT JOIN
+    users u ON up.user_id = u.id
+GROUP BY
+    p.id
+ORDER BY
+    p.id
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: CountProjectsWithUsers :one
+SELECT COUNT(DISTINCT p.id)
+FROM projects p
+LEFT JOIN project_user up ON p.id = up.project_id
+LEFT JOIN users u ON up.user_id = u.id;
+
+
+
+
+-- name: FindManyProjectsClientWithUsersWithPagination :many
+SELECT
+    p.id,
+    p.name,
+    p.description,
+    p.client_id,
+    p.status,
+    p.start_date,
+    p.end_date,
+    p.created_at,
+    p.updated_at,
+    COALESCE(
+            json_agg(
+                    json_build_object(
+                            'id', u.id,
+                            'name', u.name,
+                            'email', u.email
+                    )
+            ) FILTER (WHERE u.id IS NOT NULL),
+            '[]'::json
+    ) as users
+FROM
+    projects p
+        LEFT JOIN
+    project_user up ON p.id = up.project_id
+        LEFT JOIN
+    users u ON up.user_id = u.id
+where p.client_id = @client_id
+GROUP BY
+    p.id
+ORDER BY
+    p.id
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+

@@ -23,6 +23,33 @@ func (q *Queries) CountProjects(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const countProjectsByClientId = `-- name: CountProjectsByClientId :one
+SELECT COUNT(*)
+FROM projects
+WHERE client_id = $1
+`
+
+func (q *Queries) CountProjectsByClientId(ctx context.Context, clientID pgtype.Int8) (int64, error) {
+	row := q.db.QueryRow(ctx, countProjectsByClientId, clientID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countProjectsWithUsers = `-- name: CountProjectsWithUsers :one
+SELECT COUNT(DISTINCT p.id)
+FROM projects p
+LEFT JOIN project_user up ON p.id = up.project_id
+LEFT JOIN users u ON up.user_id = u.id
+`
+
+func (q *Queries) CountProjectsWithUsers(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countProjectsWithUsers)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createProject = `-- name: CreateProject :one
 INSERT INTO projects (name, description, client_id, status, start_date, end_date)
 VALUES ($1, $2, $3, $4, $5, $6)
@@ -164,6 +191,91 @@ func (q *Queries) FindManyProjects(ctx context.Context) ([]Project, error) {
 	return items, nil
 }
 
+const findManyProjectsClientWithUsersWithPagination = `-- name: FindManyProjectsClientWithUsersWithPagination :many
+SELECT
+    p.id,
+    p.name,
+    p.description,
+    p.client_id,
+    p.status,
+    p.start_date,
+    p.end_date,
+    p.created_at,
+    p.updated_at,
+    COALESCE(
+            json_agg(
+                    json_build_object(
+                            'id', u.id,
+                            'name', u.name,
+                            'email', u.email
+                    )
+            ) FILTER (WHERE u.id IS NOT NULL),
+            '[]'::json
+    ) as users
+FROM
+    projects p
+        LEFT JOIN
+    project_user up ON p.id = up.project_id
+        LEFT JOIN
+    users u ON up.user_id = u.id
+where p.client_id = $1
+GROUP BY
+    p.id
+ORDER BY
+    p.id
+LIMIT $3 OFFSET $2
+`
+
+type FindManyProjectsClientWithUsersWithPaginationParams struct {
+	ClientID pgtype.Int8 `json:"client_id"`
+	Offset   int32       `json:"offset"`
+	Limit    int32       `json:"limit"`
+}
+
+type FindManyProjectsClientWithUsersWithPaginationRow struct {
+	ID          int64            `json:"id"`
+	Name        string           `json:"name"`
+	Description pgtype.Text      `json:"description"`
+	ClientID    pgtype.Int8      `json:"client_id"`
+	Status      string           `json:"status"`
+	StartDate   pgtype.Date      `json:"start_date"`
+	EndDate     pgtype.Date      `json:"end_date"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	Users       interface{}      `json:"users"`
+}
+
+func (q *Queries) FindManyProjectsClientWithUsersWithPagination(ctx context.Context, arg FindManyProjectsClientWithUsersWithPaginationParams) ([]FindManyProjectsClientWithUsersWithPaginationRow, error) {
+	rows, err := q.db.Query(ctx, findManyProjectsClientWithUsersWithPagination, arg.ClientID, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FindManyProjectsClientWithUsersWithPaginationRow
+	for rows.Next() {
+		var i FindManyProjectsClientWithUsersWithPaginationRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.ClientID,
+			&i.Status,
+			&i.StartDate,
+			&i.EndDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Users,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findManyProjectsWithPagination = `-- name: FindManyProjectsWithPagination :many
 SELECT id, name, description, client_id, status, start_date, end_date, created_at, updated_at
 FROM projects
@@ -284,6 +396,89 @@ func (q *Queries) FindManyProjectsWithUsers(ctx context.Context) ([]FindManyProj
 	return items, nil
 }
 
+const findManyProjectsWithUsersWithPagination = `-- name: FindManyProjectsWithUsersWithPagination :many
+SELECT
+    p.id,
+    p.name,
+    p.description,
+    p.client_id,
+    p.status,
+    p.start_date,
+    p.end_date,
+    p.created_at,
+    p.updated_at,
+    COALESCE(
+        json_agg(
+            json_build_object(
+                'id', u.id,
+                'name', u.name,
+                'email', u.email
+            )
+        ) FILTER (WHERE u.id IS NOT NULL),
+        '[]'::json
+    ) as users
+FROM
+    projects p
+LEFT JOIN
+    project_user up ON p.id = up.project_id
+LEFT JOIN
+    users u ON up.user_id = u.id
+GROUP BY
+    p.id
+ORDER BY
+    p.id
+LIMIT $2 OFFSET $1
+`
+
+type FindManyProjectsWithUsersWithPaginationParams struct {
+	Offset int32 `json:"offset"`
+	Limit  int32 `json:"limit"`
+}
+
+type FindManyProjectsWithUsersWithPaginationRow struct {
+	ID          int64            `json:"id"`
+	Name        string           `json:"name"`
+	Description pgtype.Text      `json:"description"`
+	ClientID    pgtype.Int8      `json:"client_id"`
+	Status      string           `json:"status"`
+	StartDate   pgtype.Date      `json:"start_date"`
+	EndDate     pgtype.Date      `json:"end_date"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	Users       interface{}      `json:"users"`
+}
+
+func (q *Queries) FindManyProjectsWithUsersWithPagination(ctx context.Context, arg FindManyProjectsWithUsersWithPaginationParams) ([]FindManyProjectsWithUsersWithPaginationRow, error) {
+	rows, err := q.db.Query(ctx, findManyProjectsWithUsersWithPagination, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FindManyProjectsWithUsersWithPaginationRow
+	for rows.Next() {
+		var i FindManyProjectsWithUsersWithPaginationRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.ClientID,
+			&i.Status,
+			&i.StartDate,
+			&i.EndDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Users,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findProjectById = `-- name: FindProjectById :one
 SELECT id, name, description, client_id, status, start_date, end_date, created_at, updated_at
 FROM projects
@@ -379,6 +574,50 @@ WHERE client_id = $1
 
 func (q *Queries) FindProjectsByClientId(ctx context.Context, clientID pgtype.Int8) ([]Project, error) {
 	rows, err := q.db.Query(ctx, findProjectsByClientId, clientID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Project
+	for rows.Next() {
+		var i Project
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.ClientID,
+			&i.Status,
+			&i.StartDate,
+			&i.EndDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findProjectsByClientIdWithPagination = `-- name: FindProjectsByClientIdWithPagination :many
+SELECT id, name, description, client_id, status, start_date, end_date, created_at, updated_at
+FROM projects
+WHERE client_id = $1
+ORDER BY id
+LIMIT $3 OFFSET $2
+`
+
+type FindProjectsByClientIdWithPaginationParams struct {
+	ClientID pgtype.Int8 `json:"client_id"`
+	Offset   int32       `json:"offset"`
+	Limit    int32       `json:"limit"`
+}
+
+func (q *Queries) FindProjectsByClientIdWithPagination(ctx context.Context, arg FindProjectsByClientIdWithPaginationParams) ([]Project, error) {
+	rows, err := q.db.Query(ctx, findProjectsByClientIdWithPagination, arg.ClientID, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
